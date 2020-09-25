@@ -142,7 +142,6 @@ class PaymentFragment : ScopedFragment(), KodeinAware {
                         sharedViewModel.resetTransaction()
                         result.hasBeenHandled()
                         navigateToReceipt()
-
                     }
                 }
 
@@ -193,6 +192,26 @@ class PaymentFragment : ScopedFragment(), KodeinAware {
                 groupPaymentMethod.visibility = View.GONE
                 framePaymentMethod.visibility = View.VISIBLE
             }
+        })
+
+        sharedViewModel.salesAgent.observe(viewLifecycleOwner, Observer { saleAgent ->
+            if (saleAgent != null) {
+                textSalesAgentName.text = saleAgent.displayName
+
+            } else {
+                textSalesAgentName.text = "Sale Agent not Selected"
+            }
+
+        })
+
+        sharedViewModel.editTextDeliveryCost.observe(viewLifecycleOwner, Observer { deliveryCost ->
+            if (!deliveryCost.isNullOrEmpty()) {
+                sharedViewModel.deliveryCost = deliveryCost.trim().toDouble()
+                sharedViewModel.addDeliveryCost()
+            } else {
+                sharedViewModel.deliveryCost = 0.0
+            }
+
         })
 
         sharedViewModel.discountType.observe(viewLifecycleOwner, Observer {
@@ -252,16 +271,6 @@ class PaymentFragment : ScopedFragment(), KodeinAware {
                     for (p in paymentMethods) {
                         if (p.id == 2) {
 
-                            if (sharedViewModel.mobileMoneyPhoneNumber.length < 10) {
-                                Toast.makeText(
-                                    context,
-                                    "Please Enter Mobile Money Number",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-
-                                return@Observer
-                            }
-
                             if (sharedViewModel.mobileMoneyAmount < 0) {
                                 Toast.makeText(
                                     context,
@@ -276,21 +285,12 @@ class PaymentFragment : ScopedFragment(), KodeinAware {
                     }
 
                     for (p in paymentMethods) {
-                        if (p.id == 4) {
-                            if (sharedViewModel.visaCardNumber.length < 10) {
-                                Toast.makeText(
-                                    context,
-                                    "Please Enter Valid Card Number",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-
-                                return@Observer
-                            }
+                        if (p.id == 3) {
 
                             if (sharedViewModel.visaAmount < 0) {
                                 Toast.makeText(
                                     context,
-                                    "Please Enter Visa Amount",
+                                    "Please Enter Payment Card Amount",
                                     Toast.LENGTH_SHORT
                                 ).show()
 
@@ -307,8 +307,10 @@ class PaymentFragment : ScopedFragment(), KodeinAware {
                             .show()
                         return@Observer
                     }
+
                     groupPaymentMethodTransaction.visibility = View.VISIBLE
                     sharedViewModel.generateReceiptNumber()
+//                    navigateToReceipt()
                     post()
 
                 }
@@ -538,7 +540,6 @@ class PaymentFragment : ScopedFragment(), KodeinAware {
         super.onStop()
         (activity as AppCompatActivity?)!!.supportActionBar!!.show()
     }
-
 
     override fun onDestroyView() {
         super.onDestroyView()

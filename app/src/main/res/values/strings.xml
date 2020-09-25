@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Juben House of Beauty</string>
+    <string name="app_name">Juben POS</string>
     <string name="title_item_detail">Item Detail</string>
     <string name="title_activity_main">Juben House of Beauty</string>
     <string name="nav_header_subtitle">android.studio@android.com</string>
@@ -13,7 +13,7 @@
     <string name="toast_5">Not Found InnterPrinter!</string>
     <string name="toast_6">Bluetooth connect failed!</string>
     <!-- Strings related to login -->
-    <string name="prompt_email">Email</string>
+    <string name="prompt_email">Username</string>
     <string name="prompt_password">Password</string>
     <string name="action_sign_in_short">Sign in</string>
     <string name="welcome">"Welcome!"</string>
@@ -47,4 +47,5 @@
     <string name="text_due">Due</string>
     <string name="hint_mobile_number">Mobile Number</string>
     <string name="hint_amount_paid">Amount Paid</string>
+    <string name="text_pleas_wait">Pleas wait....</string>
 </resources>

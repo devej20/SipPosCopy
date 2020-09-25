@@ -6,11 +6,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import kotlinx.android.synthetic.main.mobile_money_fragment.*
 import net.sipconsult.jubensippos.R
 import net.sipconsult.jubensippos.SharedViewModel
 import net.sipconsult.jubensippos.databinding.MobileMoneyFragmentBinding
@@ -94,6 +96,9 @@ class MobileMoneyFragment : ScopedFragment() {
                 }
             })
 
+        textMobileMoney.visibility = View.GONE
+        editTextMobileMoneyPhoneNumber.visibility = View.GONE
+
 //        editTextMobileMoneyPhoneNumber.setRawInputType(InputType.TYPE_CLASS_TEXT)
 //        editTextMobileMoneyPhoneNumber.setTextIsSelectable(true)
 //        editTextMobileMoneyPhoneNumber.setOnClickListener { hideKeyboard() }
@@ -110,6 +115,17 @@ class MobileMoneyFragment : ScopedFragment() {
 
 //        keyboardPayment.setInputConnection(icPhoneNumber)
 //        keyboardPayment.setInputConnection(icAmount)
+        disableEditText(editTextMobileMoneyDue)
+        disableEditText(editTextMobileMoneyChange)
+
+    }
+
+    private fun disableEditText(editText: EditText) {
+        editText.isFocusable = false
+//        editText.isEnabled = false
+        editText.isCursorVisible = false
+        editText.keyListener = null
+//        editText.setBackgroundColor(Color.TRANSPARENT)
     }
 
     private fun Context.hideKeyboard(view: View) {

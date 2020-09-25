@@ -49,6 +49,8 @@ object ShoppingCartRepository {
         val targetItem = cart.singleOrNull { it.product.code == cartItem.product.code }
         if (targetItem == null) {
             cart.add(cartItem)
+        } else {
+            targetItem.quantity++
         }
 
         saveCart(

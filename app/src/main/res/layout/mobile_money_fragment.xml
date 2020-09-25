@@ -21,13 +21,13 @@
             android:id="@+id/textMobileMoneyDue"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="16dp"
             android:text="@string/text_due"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
             app:layout_constraintEnd_toStartOf="@+id/textMobileMoney"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/textView6" />
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/editTextMobileMoneyDue"
@@ -52,7 +52,8 @@
             app:layout_constraintEnd_toStartOf="@+id/textMobileMoneyAmount"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/textMobileMoneyDue"
-            app:layout_constraintTop_toTopOf="@+id/textMobileMoneyDue" />
+            app:layout_constraintTop_toTopOf="@+id/textMobileMoneyDue"
+            tools:visibility="gone" />
 
         <EditText
             android:id="@+id/editTextMobileMoneyPhoneNumber"
@@ -67,7 +68,8 @@
             app:layout_constraintEnd_toStartOf="@+id/editTextMobileMoneyAmount"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/editTextMobileMoneyDue"
-            app:layout_constraintTop_toBottomOf="@+id/textMobileMoney" />
+            app:layout_constraintTop_toBottomOf="@+id/textMobileMoney"
+            tools:visibility="gone" />
 
         <TextView
             android:id="@+id/textMobileMoneyAmount"
@@ -144,6 +146,18 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             app:layout_constraintGuide_percent="0.98" />
+
+        <TextView
+            android:id="@+id/textView6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="MOBILE NUMBER"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

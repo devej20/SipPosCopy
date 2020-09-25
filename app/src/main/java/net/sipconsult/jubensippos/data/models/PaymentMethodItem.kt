@@ -21,5 +21,8 @@ data class PaymentMethodItem(
     var isSelected: Boolean = false
 
     @Ignore
+    var displayName: String = ""
+
+    @Ignore
     var amountPaid: Double = 0.0
 }

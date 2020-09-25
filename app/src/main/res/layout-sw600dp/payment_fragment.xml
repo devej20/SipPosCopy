@@ -84,11 +84,11 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="32dp"
             android:layout_marginEnd="8dp"
+            android:layout_marginBottom="16dp"
             android:padding="10dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintBottom_toTopOf="@+id/listDiscountType"
+            app:layout_constraintBottom_toTopOf="@+id/textDeliveryCost"
             app:layout_constraintEnd_toStartOf="@+id/guidelinePaymentStart"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="@+id/guideline"
@@ -117,6 +117,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="16dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
@@ -124,7 +125,7 @@
             app:layout_constraintEnd_toStartOf="@+id/guidelinePaymentStart"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="@+id/guideline"
-            app:layout_constraintTop_toBottomOf="@+id/listPaymentMethod"
+            app:layout_constraintTop_toBottomOf="@+id/editTextDeliveryCost"
             tools:itemCount="4"
             tools:listitem="@layout/list_item_discount_type" />
 
@@ -162,7 +163,7 @@
             app:layout_constraintBottom_toTopOf="@+id/constraintLayout3"
             app:layout_constraintEnd_toStartOf="@+id/guidelinePaymentEnd"
             app:layout_constraintStart_toEndOf="@+id/guidelinePaymentStart"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toBottomOf="@+id/textSalesAgent">
 
             <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/fragmentPaymentMethods"
@@ -225,7 +226,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:constraint_referenced_ids="progressBarPaymentMethodTransaction,textPaymentMethodTransactionLoading"
-            tools:visibility="gone" />
+            tools:visibility="visible" />
 
         <ProgressBar
             android:id="@+id/progressBarPaymentMethodTransaction"
@@ -242,12 +243,68 @@
             android:id="@+id/textPaymentMethodTransactionLoading"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/text_loading"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:text="@string/text_pleas_wait"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@+id/constraintLayout3"
             app:layout_constraintEnd_toStartOf="@+id/guidelinePaymentEnd"
             app:layout_constraintStart_toStartOf="@+id/guidelinePaymentStart"
             app:layout_constraintTop_toBottomOf="@+id/progressBarPaymentMethodTransaction" />
+
+        <TextView
+            android:id="@+id/textSalesAgent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Sales Agent: "
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@+id/textSalesAgentName"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toEndOf="@+id/guidelinePaymentStart"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textSalesAgentName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="JOHN DOE"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="@color/black"
+            app:layout_constraintBottom_toBottomOf="@+id/textSalesAgent"
+            app:layout_constraintEnd_toStartOf="@+id/guidelinePaymentEnd"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/textSalesAgent"
+            app:layout_constraintTop_toTopOf="@+id/textSalesAgent" />
+
+        <EditText
+            android:id="@+id/editTextDeliveryCost"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="0.0"
+            android:inputType="numberDecimal"
+            android:text="@={viewModel.editTextDeliveryCost}"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/listDiscountType"
+            app:layout_constraintEnd_toEndOf="@+id/textDeliveryCost"
+            app:layout_constraintStart_toStartOf="@+id/textDeliveryCost"
+            app:layout_constraintTop_toBottomOf="@+id/textDeliveryCost" />
+
+        <TextView
+            android:id="@+id/textDeliveryCost"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:text="Delivery Cost: "
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            app:layout_constraintBottom_toTopOf="@+id/editTextDeliveryCost"
+            app:layout_constraintEnd_toStartOf="@+id/guidelinePaymentStart"
+            app:layout_constraintStart_toEndOf="@+id/guideline"
+            app:layout_constraintTop_toBottomOf="@+id/listPaymentMethod" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -10,7 +10,7 @@ import java.util.concurrent.ExecutionException
 object LogOutTimerUtil {
     var longTimer: Timer? = null
     private const val LOGOUT_TIME: Long =
-        900000 // delay in milliseconds i.e. 5 min = 300000 ms or use timeout argument
+        1800000 // delay in milliseconds i.e. 5 min = 300000 ms or use timeout argument
 
     @Synchronized
     fun startLogoutTimer(context: Context?, logOutListener: LogOutListener) {

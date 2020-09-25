@@ -13,7 +13,7 @@ class LocationProviderImpl(context: Context) : LocationProvider {
         get() = PreferenceManager.getDefaultSharedPreferences(appContext)
 
     override fun getLocation(): String {
-        val selectedLocation = preferences.getString(LOCATION, "1")
+        val selectedLocation = preferences.getString(LOCATION, "LOC1")
         return selectedLocation!!
 
     }

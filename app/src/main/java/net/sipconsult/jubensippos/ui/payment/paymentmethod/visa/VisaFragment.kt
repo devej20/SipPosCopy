@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -94,6 +95,8 @@ class VisaFragment : ScopedFragment() {
             })
 
         keyboardVisa.visibility = View.GONE
+        editTextVisaCardNumber.visibility = View.GONE
+        textVisa.visibility = View.GONE
 
 //        editTextVisaCardNumber.setRawInputType(InputType.TYPE_CLASS_TEXT)
 //        editTextVisaCardNumber.setTextIsSelectable(true)
@@ -111,6 +114,17 @@ class VisaFragment : ScopedFragment() {
 //
 //        keyboardPayment.setInputConnection(icCardNumber)
 //        keyboardPayment.setInputConnection(icAmount)
+
+        disableEditText(editTextVisaDue)
+        disableEditText(editTextVisaChange)
+    }
+
+    private fun disableEditText(editText: EditText) {
+        editText.isFocusable = false
+//        editText.isEnabled = false
+        editText.isCursorVisible = false
+        editText.keyListener = null
+//        editText.setBackgroundColor(Color.TRANSPARENT)
     }
 
     private fun Context.hideKeyboard(view: View) {

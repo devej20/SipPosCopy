@@ -33,7 +33,7 @@ class SharedViewModel(
     private val transactionRepository: TransactionRepository,
     private val userRepository: UserRepository,
     private val discountTypeRepository: DiscountTypeRepository,
-    locationProvider: LocationProvider,
+    private val locationProvider: LocationProvider,
     private val locationRepository: LocationRepository,
     val context: Context
 ) : ViewModel() {
@@ -82,6 +82,8 @@ class SharedViewModel(
     private val _selectedPaymentMethod = MutableLiveData<PaymentMethodItem>()
     val selectedPaymentMethod: LiveData<PaymentMethodItem> = _selectedPaymentMethod
 
+    val editTextDeliveryCost = MutableLiveData<String>()
+    var deliveryCost: Double = 0.0
     private val _discountType = MutableLiveData<DiscountTypesItem>()
     val discountType: LiveData<DiscountTypesItem> = _discountType
 
@@ -152,6 +154,11 @@ class SharedViewModel(
         val change: Double = totalAmount - totalPrice.value!!
         _change.value = decimalFormater.format(change)
 
+    }
+
+    fun addDeliveryCost() {
+        val newTotalPrice: Double = totalPrice.value!! + deliveryCost
+        _totalPrice.postValue(decimalFormater.format(newTotalPrice).toDouble())
     }
 
 
@@ -275,7 +282,7 @@ class SharedViewModel(
     private fun calSubTotal(): String {
         val vatDiscount = 0.03
         val vatAmount: Double = vatDiscount.times(total)
-        val subTotal: Double = total - vatAmount
+        val subTotal: Double = total - (vatAmount + deliveryCost)
         return decimalFormater.format(subTotal)
 
     }
@@ -297,21 +304,47 @@ class SharedViewModel(
 
     }
 
+    private fun receiptPaymentMethod(): ArrayList<PaymentMethodItem> {
+        val paymentMethodItems = arrayListOf<PaymentMethodItem>()
+        for (pm in paymentMethods.value!!) {
+            lateinit var paymentMethodItem: PaymentMethodItem
+            when (pm.id) {
+                1 -> {
+                    pm.amountPaid = cashAmount
+                    pm.displayName = "Cash Amount Paid"
+                    paymentMethodItem = pm
+                }
+                2 -> {
+                    pm.amountPaid = mobileMoneyAmount
+                    pm.displayName = "Mobile Money Amount Paid"
+                    paymentMethodItem = pm
+                }
+                3 -> {
+                    pm.amountPaid = visaAmount
+                    pm.displayName = "Visa Amount Paid"
+                    paymentMethodItem = pm
+                }
+            }
+            paymentMethodItems.add(paymentMethodItem)
+        }
+
+        return paymentMethodItems
+    }
+
     fun buildReceipt() {
         val items = cartItems.value!!
         total = totalPrice.value!!.toDouble()
         val dateStr = DateFormat.format("dd/MM/yyyy", dateNow).toString()
         val timeStr = DateFormat.format("HH:mm:ss", dateNow).toString()
         val totalString = decimalFormater.format(total)
-        val cashAmountString = decimalFormater.format(cashAmount)
-        val mobileMoneyAmountString = decimalFormater.format(mobileMoneyAmount)
-        val visaAmountString = decimalFormater.format(visaAmount)
         val locationR = locationRepository.getLocation(locationId)
         val userR = user.value!!
         val salesAgentR = salesAgent.value!!
+        val deliveryCostR = deliveryCost
         val subTotal = calSubTotal()
         val vat = calVAT()
-        val paymentMethodsR = paymentMethodsStr()
+        val paymentMethodsR = receiptPaymentMethod()
+        val paymentMethodsSR = paymentMethodsStr()
 
         receipt =
             if (discountType.value != null) {
@@ -319,6 +352,7 @@ class SharedViewModel(
                     .header("JUBEN HOUSE OF BEAUTY")
                     .text("Tel: ${locationR.telephone}")
                     .text("Mobile: ${locationR.mobileNumber1}")
+                    .text("WhatsApp: ${locationR.mobileNumber2}")
                     .text("Tin: C0005355370")
                     .subHeader("SALES RECEIPT")
                     .divider()
@@ -338,11 +372,11 @@ class SharedViewModel(
                         "Discount ${discountType.value!!.percentageStr}",
                         "GHC ${totalDiscountPrice.value!!}"
                     )
+                    .menuLine("Delivery Cost", "GHC $deliveryCostR")
                     .menuLine("Total", "GHC $totalString")
-                    .menuLine("Cash Amount Paid", "GHC $cashAmountString")
-                    .menuLine("Mobile Money Amount Paid", "GHC $mobileMoneyAmountString")
-                    .menuLine("Visa Amount Paid", "GHC $visaAmountString")
+                    .menuPaymentMethod(paymentMethodsR)
                     .menuLine("Change", "GHC ${change.value}")
+                    .menuLine("Payment Method", paymentMethodsSR)
                     .dividerDouble()
                     .stared("THANK YOU")
                     .build()
@@ -351,6 +385,7 @@ class SharedViewModel(
                     .header("JUBEN HOUSE OF BEAUTY")
                     .text("Tel: ${locationR.telephone}")
                     .text("Mobile: ${locationR.mobileNumber1}")
+                    .text("WhatsApp: ${locationR.mobileNumber2}")
                     .text("Tin: C0005355370")
                     .subHeader("SALES RECEIPT")
                     .divider()
@@ -366,12 +401,11 @@ class SharedViewModel(
                     .dividerDouble()
                     .menuLine("SubTotal", "GHC $subTotal")
                     .menuLine("3% VAT Rate", "GHC $vat")
+                    .menuLine("Delivery Cost", "GHC $deliveryCostR")
                     .menuLine("Total", "GHC $totalString")
-                    .menuLine("Cash Amount Paid", "GHC $cashAmountString")
-                    .menuLine("Mobile Money Amount Paid", "GHC $mobileMoneyAmountString")
-                    .menuLine("Visa Amount Paid", "GHC $visaAmountString")
+                    .menuPaymentMethod(paymentMethodsR)
                     .menuLine("Change", "GHC ${change.value}")
-                    .menuLine("Payment Method", paymentMethodsR)
+                    .menuLine("Payment Method", paymentMethodsSR)
                     .dividerDouble()
                     .stared("THANK YOU")
                     .build()
@@ -412,15 +446,13 @@ class SharedViewModel(
                 2 -> {
                     salesTransactionPostPaymentMethod = SalesTransactionPostPaymentMethod(
                         paymentMethodId = paymentMethod.id,
-                        amount = mobileMoneyAmount,
-                        description = mobileMoneyPhoneNumber
+                        amount = mobileMoneyAmount
                     )
                 }
                 3 -> {
                     salesTransactionPostPaymentMethod = SalesTransactionPostPaymentMethod(
                         paymentMethodId = paymentMethod.id,
-                        amount = visaAmount,
-                        description = visaCardNumber
+                        amount = visaAmount
                     )
                 }
             }
@@ -438,6 +470,10 @@ class SharedViewModel(
 
         if (discountType.value != null) {
             body.discountTypeId = discountType.value?.id
+        }
+
+        if (editTextDeliveryCost.value != null && deliveryCost > 0.0) {
+            body.deliveryCost = deliveryCost
         }
 
         transactionRepository.postTransaction(body)

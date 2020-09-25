@@ -14,8 +14,10 @@ data class SaleTransactionPostBody(
     val receiptNumber: String,
     @SerializedName("Description")
     val description: String = "",
-    @SerializedName("discountTypeId")
+    @SerializedName("DiscountTypeId")
     var discountTypeId: Int? = null,
+    @SerializedName("DeliveryCost")
+    var deliveryCost: Double? = null,
     @SerializedName("SalesTransactionPaymentMethod")
     val salesTransactionPaymentMethod: List<SalesTransactionPostPaymentMethod>,
     @SerializedName("SalesTransactionProduct")

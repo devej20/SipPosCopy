@@ -2,6 +2,7 @@ package net.sipconsult.jubensippos.util
 
 import android.content.Context
 import net.sipconsult.jubensippos.data.models.CartItem
+import net.sipconsult.jubensippos.data.models.PaymentMethodItem
 import net.sipconsult.jubensippos.util.PrinterFonts.FontGroup
 import java.io.BufferedReader
 import java.io.IOException
@@ -249,7 +250,7 @@ class ReceiptBuilder {
         return this
     }
 
-    fun truncate(str: String, len: Int): String? {
+    private fun truncate(str: String, len: Int): String? {
         return if (str.length > len) {
             str.substring(0, len) + "..."
         } else {
@@ -274,7 +275,7 @@ class ReceiptBuilder {
             val itemTotalPrice = itemPrice * itemQuantity
             val itemTotalPriceString = decimalFormater.format(itemTotalPrice)
 
-            menuLine("$itemQuantity ${truncate(itemName, 25)}", itemTotalPriceString)
+            menuLine("$itemQuantity ${truncate(itemName, 23)} $itemPrice", itemTotalPriceString)
         }
 
         return this
@@ -282,24 +283,13 @@ class ReceiptBuilder {
 
     @JvmOverloads
     fun menuPaymentMethod(
-        items: List<CartItem>
+        items: ArrayList<PaymentMethodItem>
     ): ReceiptBuilder {
         val decimalFormater = DecimalFormat("0.00")
 
         for (item in items) {
-
-            val itemName = item.product.description
-            val itemPrice = item.product.price.salePrice
-
-            val itemQuantity = item.quantity
-
-
-            val itemTotalPrice = itemPrice * itemQuantity
-            val itemTotalPriceString = decimalFormater.format(itemTotalPrice)
-
-            menuLine("$itemQuantity ${truncate(itemName, 25)}", itemTotalPriceString)
+            menuLine(item.displayName, "GHC ${item.amountPaid}")
         }
-
         return this
     }
 

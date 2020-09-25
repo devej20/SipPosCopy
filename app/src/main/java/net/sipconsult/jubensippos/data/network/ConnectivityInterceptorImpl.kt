@@ -19,7 +19,7 @@ class ConnectivityInterceptorImpl(
 */
         if (isOnline())
             return chain.proceed(chain.request())
-            throw NoConnectivityException()
+        throw NoConnectivityException()
 
     }
 

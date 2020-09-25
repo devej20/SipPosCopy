@@ -19,6 +19,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.navigation.NavigationView
 import io.paperdb.Paper
+import net.sipconsult.jubensippos.data.repository.shoppingCart.ShoppingCartRepository
 import net.sipconsult.jubensippos.util.LogOutTimerUtil
 import org.kodein.di.KodeinAware
 import org.kodein.di.android.closestKodein
@@ -139,6 +140,7 @@ class MainActivity : AppCompatActivity(), KodeinAware, LogOutTimerUtil.LogOutLis
         return when (item.itemId) {
             R.id.action_logout -> {
                 Toast.makeText(applicationContext, "click on logout", Toast.LENGTH_LONG).show()
+                ShoppingCartRepository.removeALLCartItem()
                 viewModel.logout()
                 finish()
                 val intent = Intent(this, MainActivity::class.java)
@@ -158,6 +160,7 @@ class MainActivity : AppCompatActivity(), KodeinAware, LogOutTimerUtil.LogOutLis
 
     override fun doLogout() {
         viewModel.logout()
+        ShoppingCartRepository.removeALLCartItem()
         finish()
 //        val intent = Intent(this, MainActivity::class.java)
 //        startActivity(intent)

@@ -23,4 +23,9 @@
         android:id="@+id/visaFragment"
         android:name="net.sipconsult.jubensippos.ui.payment.paymentmethod.visa.VisaFragment"
         android:label="VisaFragment" />
+    <fragment
+        android:id="@+id/chequeFragment"
+        android:name="net.sipconsult.jubensippos.ui.payment.paymentmethod.cheque.ChequeFragment"
+        android:label="cheque_fragment"
+        tools:layout="@layout/cheque_fragment" />
 </navigation>

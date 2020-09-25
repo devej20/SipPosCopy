@@ -1,5 +1,7 @@
 package net.sipconsult.jubensippos.ui.products
 
+import android.app.Activity.RESULT_CANCELED
+import android.app.Activity.RESULT_OK
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -19,6 +21,7 @@ import com.google.zxing.integration.android.IntentResult
 import kotlinx.android.synthetic.main.products_fragment.*
 import kotlinx.coroutines.launch
 import net.sipconsult.jubensippos.R
+import net.sipconsult.jubensippos.ScanningActivity
 import net.sipconsult.jubensippos.data.models.CartItem
 import net.sipconsult.jubensippos.data.models.ProductItem
 import net.sipconsult.jubensippos.data.repository.shoppingCart.ShoppingCartRepository
@@ -71,7 +74,8 @@ class ProductsFragment : ScopedFragment(), KodeinAware {
 
         buttonScanBarcode.setOnClickListener {
 //            Toast.makeText(activity, "Scan", Toast.LENGTH_LONG).show()
-            startScanSunmi()
+//            startInternalScanSunmi()
+            startExternalScanSunmi()
         }
 
     }
@@ -125,7 +129,12 @@ class ProductsFragment : ScopedFragment(), KodeinAware {
         integrator.initiateScan()
     }
 
-    private fun startScanSunmi() {
+    private fun startExternalScanSunmi() {
+        val intent = Intent(context, ScanningActivity::class.java)
+        startActivityForResult(intent, EXTERNAL_SCANNER_CODE)
+    }
+
+    private fun startInternalScanSunmi() {
         val intent = Intent("com.summi.scan")
 
         intent.setPackage("com.sunmi.sunmiqrcodescanner")
@@ -157,11 +166,11 @@ class ProductsFragment : ScopedFragment(), KodeinAware {
         intent.putExtra("IS_SHOW_ALBUM", true)// Wether display album，default true
 
 
-        startActivityForResult(intent, 100)
+        startActivityForResult(intent, INTERNAL_SCANNER_CODE)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == 100 && data != null) {
+        if (requestCode == INTERNAL_SCANNER_CODE && data != null) {
             val bundle = data.extras
             val result = bundle!!.getSerializable("data") as ArrayList<HashMap<String, String>>
 
@@ -183,6 +192,17 @@ class ProductsFragment : ScopedFragment(), KodeinAware {
                 addScannedCartItem(barcode)
 
             }
+        }
+        if (requestCode == EXTERNAL_SCANNER_CODE && data != null) {
+            if (resultCode == RESULT_OK) {
+                val barcode: String = data.getStringExtra("product_barcode").toString()
+                addScannedCartItem(barcode)
+
+            }
+            if (resultCode == RESULT_CANCELED) {
+                Toast.makeText(activity, "Cancelled", Toast.LENGTH_LONG).show()
+            }
+
         }
         val result =
             IntentIntegrator.parseActivityResult(requestCode, resultCode, data)
@@ -208,12 +228,17 @@ class ProductsFragment : ScopedFragment(), KodeinAware {
         if (pdt != null) {
             val cartItem = CartItem(pdt)
             cartItem.let { it.let { it1 -> ShoppingCartRepository.addCartItem(it1) } }
-            ShoppingCartRepository.addCartItem(cartItem)
+//            ShoppingCartRepository.addCartItem(cartItem)
             Toast.makeText(activity, "Product found", Toast.LENGTH_SHORT).show()
         } else {
             Toast.makeText(activity, "Product not found", Toast.LENGTH_SHORT).show()
         }
 
+    }
+
+    companion object {
+        private const val INTERNAL_SCANNER_CODE: Int = 100
+        private const val EXTERNAL_SCANNER_CODE: Int = 101
     }
 
 

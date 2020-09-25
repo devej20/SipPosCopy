@@ -2,12 +2,9 @@ package net.sipconsult.jubensippos.ui.payment.paymentmethod.cash
 
 import android.content.Context
 import android.os.Bundle
-import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
@@ -90,13 +87,16 @@ class CashFragment : ScopedFragment() {
     }
 
     private fun buildUI() {
-        editTextCashTender.setRawInputType(InputType.TYPE_CLASS_TEXT)
-        editTextCashTender.setTextIsSelectable(true)
-        editTextCashTender.setOnClickListener { hideKeyboard() }
-//        editTextCashTender.keyListener = null
 
-        val ic: InputConnection = editTextCashTender.onCreateInputConnection(EditorInfo())!!
-        keyboardPayment.setInputConnection(ic)
+        keyboardPayment.visibility = View.GONE
+
+//        editTextCashTender.setRawInputType(InputType.TYPE_CLASS_TEXT)
+//        editTextCashTender.setTextIsSelectable(true)
+//        editTextCashTender.setOnClickListener { hideKeyboard() }
+////        editTextCashTender.keyListener = null
+//
+//        val ic: InputConnection = editTextCashTender.onCreateInputConnection(EditorInfo())!!
+//        keyboardPayment.setInputConnection(ic)
 
         disableEditText(editTextCashDue)
         disableEditText(editTextCashChange)

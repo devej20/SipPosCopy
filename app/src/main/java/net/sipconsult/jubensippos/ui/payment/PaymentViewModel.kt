@@ -20,7 +20,6 @@ class PaymentViewModel(private val userRepository: UserRepository) : ViewModel()
     var usernameLogin: String = ""
     var passwordLogin: String = ""
 
-
     private val _loginForm = MutableLiveData<LoginFormState>()
     val loginFormState: LiveData<LoginFormState> = _loginForm
 
