@@ -28,7 +28,7 @@ class ScanningActivity : AppCompatActivity() {
 
         editTextBarcode.setOnKeyListener(View.OnKeyListener { v, keyCode, event ->
             if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
-                val productBarcode = editTextBarcode.text.toString()
+                val productBarcode = editTextBarcode.text.toString().trim()
                 doneWith(productBarcode)
                 return@OnKeyListener true
             }

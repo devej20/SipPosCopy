@@ -84,7 +84,7 @@ class LoyaltyFragment : ScopedFragment() {
                         findNavController().navigate(R.id.loyaltyFragment)
                     }
                     3 -> {
-                        findNavController().navigate(R.id.visaFragment)
+                        findNavController().navigate(R.id.cardFragment)
                     }
                 }
             }

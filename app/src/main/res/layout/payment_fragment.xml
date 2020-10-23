@@ -289,7 +289,9 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
             android:textStyle="bold"
             app:layout_constraintBottom_toTopOf="@+id/listDiscountType"
-            app:layout_constraintEnd_toEndOf="@+id/textDeliveryCost"
+            app:layout_constraintEnd_toStartOf="@+id/buttonDeliveryCostAdd"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/guideline"
             app:layout_constraintStart_toStartOf="@+id/textDeliveryCost"
             app:layout_constraintTop_toBottomOf="@+id/textDeliveryCost" />
 
@@ -305,6 +307,30 @@
             app:layout_constraintEnd_toStartOf="@+id/guidelinePaymentStart"
             app:layout_constraintStart_toEndOf="@+id/guideline"
             app:layout_constraintTop_toBottomOf="@+id/listPaymentMethod" />
+
+        <Button
+            android:id="@+id/buttonDeliveryCostAdd"
+            android:layout_width="70dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="Add"
+            app:layout_constraintBottom_toBottomOf="@+id/editTextDeliveryCost"
+            app:layout_constraintEnd_toStartOf="@+id/buttonDeliveryCostSub"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/editTextDeliveryCost"
+            app:layout_constraintTop_toTopOf="@+id/editTextDeliveryCost" />
+
+        <Button
+            android:id="@+id/buttonDeliveryCostSub"
+            android:layout_width="70dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="Sub"
+            app:layout_constraintBottom_toBottomOf="@+id/buttonDeliveryCostAdd"
+            app:layout_constraintEnd_toEndOf="@+id/textDeliveryCost"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/buttonDeliveryCostAdd"
+            app:layout_constraintTop_toTopOf="@+id/buttonDeliveryCostAdd" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

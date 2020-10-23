@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.shopping_cart_fragment.*
 import net.sipconsult.jubensippos.R
+import net.sipconsult.jubensippos.data.models.CartItem
 
 class ShoppingCartFragment : Fragment() {
 
@@ -39,21 +40,22 @@ class ShoppingCartFragment : Fragment() {
                 listShoppingCart.visibility = View.VISIBLE
                 groupCart.visibility = View.INVISIBLE
             }
-            shoppingCartAdapter.setCartItems(it)
+            val cartItems: List<CartItem> = ArrayList(it.asReversed())
+            shoppingCartAdapter.setCartItems(cartItems)
         })
 
         return root
     }
 
-    private fun onDeleteClick(itemPosition: Int) {
+    private fun onDeleteClick(itemPosition: CartItem) {
         viewModel.removeCartItem(itemPosition)
     }
 
-    private fun onSubClick(itemPosition: Int) {
+    private fun onSubClick(itemPosition: CartItem) {
         viewModel.decreaseCartItemQuantity(itemPosition)
     }
 
-    private fun onAddClick(itemPosition: Int) {
+    private fun onAddClick(itemPosition: CartItem) {
         viewModel.increaseCartItemQuantity(itemPosition)
     }
 

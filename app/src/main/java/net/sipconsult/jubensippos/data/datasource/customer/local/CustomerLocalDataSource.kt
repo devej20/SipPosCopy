@@ -1,0 +1,3 @@
+package net.sipconsult.jubensippos.data.datasource.customer.local
+
+interface CustomerLocalDataSource

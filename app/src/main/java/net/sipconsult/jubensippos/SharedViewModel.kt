@@ -50,13 +50,15 @@ class SharedViewModel(
     private var receiptNumber: String = ""
     private var total: Double = 0.0
     lateinit var receipt: Receipt
-    val decimalFormater = DecimalFormat("0.00")
+    private val decimalFormater = DecimalFormat("0.00")
     private var username: String = ""
     var email: String = ""
     var voucherCode: String = ""
 
     private var isReceiptNumberGenerated: Boolean = false
     var isPrintReceipt: Boolean = false
+    var isDeliveryCostAdd: Boolean = false
+    var isDeliveryCostSub: Boolean = false
 
     private val _authenticationState = MutableLiveData<AuthenticationState>()
     val authenticationState: LiveData<AuthenticationState> = _authenticationState
@@ -105,13 +107,17 @@ class SharedViewModel(
     var editTextMobileMoneyAmount = MutableLiveData<String>()
     var mobileMoneyAmount: Double = 0.0
 
-    val editTextVisaCardNumber = MutableLiveData<String>()
-    var visaCardNumber: String = ""
-    val editTextVisaAmount = MutableLiveData<String>()
-    var visaAmount: Double = 0.0
+    val editTextCardNumber = MutableLiveData<String>()
+    var cardNumber: String = ""
+    val editTextCardAmount = MutableLiveData<String>()
+    var cardAmount: Double = 0.0
+
+    val editTextChequeNumber = MutableLiveData<String>()
+    var chequeNumber: String = ""
+    val editTextChequeAmount = MutableLiveData<String>()
+    var chequeAmount: Double = 0.0
 
     var totalAmount: Double = 0.0
-
 
     private val _change = MutableLiveData<String>()
     val change: LiveData<String> = _change
@@ -150,7 +156,7 @@ class SharedViewModel(
 
 
     fun deduct() {
-        val totalAmount = cashAmount + mobileMoneyAmount + visaAmount
+        val totalAmount = cashAmount + mobileMoneyAmount + cardAmount
         val change: Double = totalAmount - totalPrice.value!!
         _change.value = decimalFormater.format(change)
 
@@ -158,6 +164,11 @@ class SharedViewModel(
 
     fun addDeliveryCost() {
         val newTotalPrice: Double = totalPrice.value!! + deliveryCost
+        _totalPrice.postValue(decimalFormater.format(newTotalPrice).toDouble())
+    }
+
+    fun subDeliveryCost() {
+        val newTotalPrice: Double = totalPrice.value!! - deliveryCost
         _totalPrice.postValue(decimalFormater.format(newTotalPrice).toDouble())
     }
 
@@ -203,7 +214,7 @@ class SharedViewModel(
     private val generateReceiptNumber: String
         get() {
 
-            var receiptNumber: String = ""
+//            var receiptNumber = ""
             val dateNow = Date(System.currentTimeMillis())
 
             val millis = dateNow.time
@@ -320,8 +331,8 @@ class SharedViewModel(
                     paymentMethodItem = pm
                 }
                 3 -> {
-                    pm.amountPaid = visaAmount
-                    pm.displayName = "Visa Amount Paid"
+                    pm.amountPaid = cardAmount
+                    pm.displayName = "Card Amount Paid"
                     paymentMethodItem = pm
                 }
             }
@@ -350,6 +361,7 @@ class SharedViewModel(
             if (discountType.value != null) {
                 ReceiptBuilder()
                     .header("JUBEN HOUSE OF BEAUTY")
+                    .text(locationR.address)
                     .text("Tel: ${locationR.telephone}")
                     .text("Mobile: ${locationR.mobileNumber1}")
                     .text("WhatsApp: ${locationR.mobileNumber2}")
@@ -383,6 +395,7 @@ class SharedViewModel(
             } else {
                 ReceiptBuilder()
                     .header("JUBEN HOUSE OF BEAUTY")
+                    .text(locationR.address)
                     .text("Tel: ${locationR.telephone}")
                     .text("Mobile: ${locationR.mobileNumber1}")
                     .text("WhatsApp: ${locationR.mobileNumber2}")
@@ -452,7 +465,7 @@ class SharedViewModel(
                 3 -> {
                     salesTransactionPostPaymentMethod = SalesTransactionPostPaymentMethod(
                         paymentMethodId = paymentMethod.id,
-                        amount = visaAmount
+                        amount = cardAmount
                     )
                 }
             }
@@ -566,7 +579,7 @@ class SharedViewModel(
         editTextTender.postValue(null)
         cashAmount = 0.0
         mobileMoneyAmount = 0.0
-        visaAmount = 0.0
+        cardAmount = 0.0
         totalAmount = 0.0
         isReceiptNumberGenerated = false
         isPrintReceipt = false

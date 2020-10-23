@@ -15,15 +15,15 @@ class ShoppingCartViewModel : ViewModel() {
          return cartItems.value.isNullOrEmpty()
     }
 
-    fun removeCartItem(cartItemPos: Int) {
+    fun removeCartItem(cartItemPos: CartItem) {
         ShoppingCartRepository.removeCartItem(cartItemPos)
     }
 
-    fun increaseCartItemQuantity(itemPosition: Int) {
+    fun increaseCartItemQuantity(itemPosition: CartItem) {
         ShoppingCartRepository.increaseCartItemQuantity(itemPosition)
     }
 
-    fun decreaseCartItemQuantity(itemPosition: Int) {
+    fun decreaseCartItemQuantity(itemPosition: CartItem) {
         ShoppingCartRepository.decreaseCartItemQuantity(itemPosition)
     }
 

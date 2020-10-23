@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "dc760e603d3e61eebe976f31908e2132",
+    "identityHash": "407a8afcfee3395301883234ac5359f7",
     "entities": [
       {
         "tableName": "products",
@@ -262,7 +262,7 @@
       },
       {
         "tableName": "locations",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`code` TEXT NOT NULL, `mobile_number_one` TEXT, `mobile_number_two` TEXT, `name` TEXT NOT NULL, `telephone` TEXT, PRIMARY KEY(`code`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`code` TEXT NOT NULL, `mobile_number_one` TEXT, `mobile_number_two` TEXT, `name` TEXT NOT NULL, `address` TEXT, `telephone` TEXT, PRIMARY KEY(`code`))",
         "fields": [
           {
             "fieldPath": "code",
@@ -287,6 +287,12 @@
             "columnName": "name",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "address",
+            "columnName": "address",
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "telephone",
@@ -358,7 +364,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'dc760e603d3e61eebe976f31908e2132')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '407a8afcfee3395301883234ac5359f7')"
     ]
   }
 }

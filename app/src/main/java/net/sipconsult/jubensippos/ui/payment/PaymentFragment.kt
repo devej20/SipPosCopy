@@ -22,6 +22,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.DividerItemDecoration
 import kotlinx.android.synthetic.main.dialog_authentication.view.*
 import kotlinx.android.synthetic.main.payment_fragment.*
 import kotlinx.coroutines.launch
@@ -205,14 +206,16 @@ class PaymentFragment : ScopedFragment(), KodeinAware {
         })
 
         sharedViewModel.editTextDeliveryCost.observe(viewLifecycleOwner, Observer { deliveryCost ->
-            if (!deliveryCost.isNullOrEmpty()) {
-                sharedViewModel.deliveryCost = deliveryCost.trim().toDouble()
-                sharedViewModel.addDeliveryCost()
+            if (deliveryCost.isNullOrEmpty()) {
+                buttonDeliveryCostAdd.isEnabled = false
+                buttonDeliveryCostSub.isEnabled = false
             } else {
-                sharedViewModel.deliveryCost = 0.0
+                buttonDeliveryCostAdd.isEnabled = true
             }
-
         })
+
+        buttonDeliveryCostAdd.isEnabled = false
+        buttonDeliveryCostSub.isEnabled = false
 
         sharedViewModel.discountType.observe(viewLifecycleOwner, Observer {
             selectedDiscountType = it
@@ -243,6 +246,38 @@ class PaymentFragment : ScopedFragment(), KodeinAware {
                 textPaymentDiscount.visibility = View.INVISIBLE
             }
         })
+
+        buttonDeliveryCostAdd.setOnClickListener {
+            val deliveryCost = editTextDeliveryCost.text.toString().trim()
+            if (deliveryCost.isNotEmpty()) {
+                if (!sharedViewModel.isDeliveryCostAdd) {
+                    val deliveryAmount = deliveryCost.toDouble()
+                    sharedViewModel.deliveryCost = deliveryAmount
+                    sharedViewModel.addDeliveryCost()
+                    sharedViewModel.isDeliveryCostAdd = true
+                    sharedViewModel.isDeliveryCostSub = false
+                    buttonDeliveryCostAdd.isEnabled = sharedViewModel.isDeliveryCostSub
+                    buttonDeliveryCostSub.isEnabled = sharedViewModel.isDeliveryCostAdd
+
+                }
+            }
+        }
+
+        buttonDeliveryCostSub.setOnClickListener {
+            val deliveryCost = editTextDeliveryCost.text.toString().trim()
+            if (deliveryCost.isNotEmpty()) {
+                if (!sharedViewModel.isDeliveryCostSub) {
+                    val deliveryAmount = deliveryCost.toDouble()
+                    sharedViewModel.deliveryCost = deliveryAmount
+                    sharedViewModel.subDeliveryCost()
+                    editTextDeliveryCost.text.clear()
+                    sharedViewModel.isDeliveryCostSub = true
+                    sharedViewModel.isDeliveryCostAdd = false
+                    buttonDeliveryCostSub.isEnabled = sharedViewModel.isDeliveryCostAdd
+                    buttonDeliveryCostAdd.isEnabled = sharedViewModel.isDeliveryCostSub
+                }
+            }
+        }
 
         buttonPaymentBack.setOnClickListener {
             sharedViewModel.resetPaymentMethodAndDiscount()
@@ -287,7 +322,7 @@ class PaymentFragment : ScopedFragment(), KodeinAware {
                     for (p in paymentMethods) {
                         if (p.id == 3) {
 
-                            if (sharedViewModel.visaAmount < 0) {
+                            if (sharedViewModel.cardAmount < 0) {
                                 Toast.makeText(
                                     context,
                                     "Please Enter Payment Card Amount",
@@ -300,7 +335,7 @@ class PaymentFragment : ScopedFragment(), KodeinAware {
 
                     }
                     val totalAmount =
-                        sharedViewModel.cashAmount + sharedViewModel.mobileMoneyAmount + sharedViewModel.visaAmount
+                        sharedViewModel.cashAmount + sharedViewModel.mobileMoneyAmount + sharedViewModel.cardAmount
 
                     if (totalAmount < totalPrice) {
                         Toast.makeText(context, "Invalid Total Amount", Toast.LENGTH_SHORT)
@@ -397,7 +432,7 @@ class PaymentFragment : ScopedFragment(), KodeinAware {
         }
         val paymentMethodItemVisa = paymentMethods.find { p -> p.id == 3 }
         if (paymentMethodItemVisa == null) {
-            sharedViewModel.visaAmount = 0.0
+            sharedViewModel.cardAmount = 0.0
             sharedViewModel.deduct()
         }
     }
@@ -406,6 +441,12 @@ class PaymentFragment : ScopedFragment(), KodeinAware {
         val discountListAdapter =
             DiscountListAdapter(::onDiscountTypeClick)
         listDiscountType.adapter = discountListAdapter
+        listDiscountType.addItemDecoration(
+            DividerItemDecoration(
+                listDiscountType.context,
+                DividerItemDecoration.VERTICAL
+            )
+        )
         discountListAdapter.setDiscountTypes(discountTypes)
     }
 

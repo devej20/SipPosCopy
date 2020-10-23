@@ -1,0 +1,3 @@
+package net.sipconsult.jubensippos.data.datasource.service.network
+
+interface ServiceNetworkDataSource

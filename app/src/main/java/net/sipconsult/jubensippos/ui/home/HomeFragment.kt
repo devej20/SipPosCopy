@@ -15,13 +15,16 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.DividerItemDecoration
 import com.google.zxing.integration.android.IntentIntegrator
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.android.synthetic.main.list_sales_agent.*
+import kotlinx.android.synthetic.main.products_fragment.*
 import kotlinx.android.synthetic.main.shopping_cart_fragment.*
 import kotlinx.coroutines.launch
 import net.sipconsult.jubensippos.R
 import net.sipconsult.jubensippos.SharedViewModel
+import net.sipconsult.jubensippos.data.models.CartItem
 import net.sipconsult.jubensippos.data.models.SalesAgentsItem
 import net.sipconsult.jubensippos.ui.base.ScopedFragment
 import net.sipconsult.jubensippos.ui.login.AuthenticationState
@@ -101,6 +104,12 @@ class HomeFragment : ScopedFragment(), KodeinAware {
                 ::onDeleteClick
             )
         listShoppingCart.adapter = shoppingCartAdapter
+        listShoppingCart.addItemDecoration(
+            DividerItemDecoration(
+                listShoppingCart.context,
+                DividerItemDecoration.VERTICAL
+            )
+        )
         sharedViewModel.cartItems.observe(viewLifecycleOwner, Observer {
             if (it.isNullOrEmpty()) {
                 listShoppingCart.visibility = View.INVISIBLE
@@ -113,7 +122,7 @@ class HomeFragment : ScopedFragment(), KodeinAware {
                 buttonPayment.isEnabled = true
                 buttonClearCart.isEnabled = true
             }
-            shoppingCartAdapter.setCartItems(it)
+            shoppingCartAdapter.setCartItems(it.asReversed())
         })
 
 //        sharedViewModel.salesAgent.observe(viewLifecycleOwner, Observer { saleAgent ->
@@ -132,11 +141,11 @@ class HomeFragment : ScopedFragment(), KodeinAware {
 
         buttonClearCart.setOnClickListener {
             viewModel.removeALLCartItem()
-
+            textProductFoundNotFound.text = ""
         }
 
         buttonPayment.setOnClickListener {
-
+            textProductFoundNotFound.text = ""
             if (sharedViewModel.salesAgent.value != null) {
                 sharedViewModel.setTotalPrice()
                 val action = HomeFragmentDirections.actionNavHomeToPaymentFragment()
@@ -162,7 +171,14 @@ class HomeFragment : ScopedFragment(), KodeinAware {
         val salesAgentListAdapter =
             SalesAgentListAdapter(::onSalesAgentClick)
         listSalesAgent.adapter = salesAgentListAdapter
+        listSalesAgent.addItemDecoration(
+            DividerItemDecoration(
+                listSalesAgent.context,
+                DividerItemDecoration.VERTICAL
+            )
+        )
         salesAgentListAdapter.setSalesAgent(products)
+
     }
 
     private fun onSalesAgentClick(salesAgentsItem: SalesAgentsItem) {
@@ -200,17 +216,16 @@ class HomeFragment : ScopedFragment(), KodeinAware {
         }
     }
 
-
-    private fun onDeleteClick(itemPosition: Int) {
-        viewModel.removeCartItem(itemPosition)
+    private fun onDeleteClick(cartItem: CartItem) {
+        viewModel.removeCartItem(cartItem)
     }
 
-    private fun onSubClick(itemPosition: Int) {
-        viewModel.decreaseCartItemQuantity(itemPosition)
+    private fun onSubClick(cartItem: CartItem) {
+        viewModel.decreaseCartItemQuantity(cartItem)
     }
 
-    private fun onAddClick(itemPosition: Int) {
-        viewModel.increaseCartItemQuantity(itemPosition)
+    private fun onAddClick(cartItem: CartItem) {
+        viewModel.increaseCartItemQuantity(cartItem)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

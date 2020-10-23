@@ -228,10 +228,10 @@ class ProductsFragment : ScopedFragment(), KodeinAware {
         if (pdt != null) {
             val cartItem = CartItem(pdt)
             cartItem.let { it.let { it1 -> ShoppingCartRepository.addCartItem(it1) } }
+            textProductFoundNotFound.text = "Product Found"
 //            ShoppingCartRepository.addCartItem(cartItem)
-            Toast.makeText(activity, "Product found", Toast.LENGTH_SHORT).show()
         } else {
-            Toast.makeText(activity, "Product not found", Toast.LENGTH_SHORT).show()
+            textProductFoundNotFound.text = "Product Not Found"
         }
 
     }

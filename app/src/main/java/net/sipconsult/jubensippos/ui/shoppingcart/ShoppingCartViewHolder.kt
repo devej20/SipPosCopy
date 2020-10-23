@@ -9,16 +9,19 @@ import net.sipconsult.jubensippos.internal.glide.GlideApp
 
 class ShoppingCartViewHolder(
     itemView: View,
-    onSubClick: (Int) -> Unit,
-    onAddClick: (Int) -> Unit,
-    onDeleteClick: (Int) -> Unit
+    onSubClick: (CartItem) -> Unit,
+    onAddClick: (CartItem) -> Unit,
+    onDeleteClick: (CartItem) -> Unit
 ) : RecyclerView.ViewHolder(itemView) {
 
     private var cartItemPosition: Int = 0
+    private lateinit var _cartItem: CartItem
 
     fun bind(cartItem: CartItem, position: Int) {
         cartItemPosition = position
+        _cartItem = cartItem
         itemView.textProductName.text = cartItem.product.description
+        itemView.textProductDescription.visibility = View.GONE
 
         itemView.textQuantity.text = cartItem.getProductQuantityString()
 
@@ -30,13 +33,13 @@ class ShoppingCartViewHolder(
 
     init {
         itemView.imageButtonDelete.setOnClickListener {
-            onDeleteClick(cartItemPosition)
+            onDeleteClick(_cartItem)
         }
         itemView.imageButtonSub.setOnClickListener {
-            onSubClick(cartItemPosition)
+            onSubClick(_cartItem)
         }
         itemView.imageButtonAdd.setOnClickListener {
-            onAddClick(cartItemPosition)
+            onAddClick(_cartItem)
         }
     }
 

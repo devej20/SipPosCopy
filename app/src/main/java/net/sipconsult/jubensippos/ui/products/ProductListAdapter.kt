@@ -47,10 +47,13 @@ class ProductListAdapter(private val onProductClick: (ProductItem) -> Unit) :
                     for (product in _products) {
 
                         val productBarcode = product.barcode ?: ""
+                        val productCode = product.code
 
                         if ((product.description.toLowerCase(Locale.ROOT)
                                 .contains(charSearch.toLowerCase(Locale.ROOT)) ||
                                     productBarcode.toLowerCase(Locale.ROOT)
+                                        .contains(charSearch.toLowerCase(Locale.ROOT)) ||
+                                    productCode.toLowerCase(Locale.ROOT)
                                         .contains(charSearch.toLowerCase(Locale.ROOT)))
                         ) {
                             resultList.add(product)

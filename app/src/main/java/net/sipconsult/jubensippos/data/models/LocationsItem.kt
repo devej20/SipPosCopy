@@ -18,9 +18,11 @@ data class LocationsItem(
     val mobileNumber1: String? = "",
     @SerializedName("mobileNumber2")
     @ColumnInfo(name = "mobile_number_two")
-    val mobileNumber2: String? = null,
+    val mobileNumber2: String? = "",
     @SerializedName("name")
     val name: String = "",
+    @SerializedName("address")
+    val address: String? = "",
     @SerializedName("telephone")
     val telephone: String? = ""
 )

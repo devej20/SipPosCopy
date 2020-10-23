@@ -7,6 +7,9 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
 
+        <item name="android:fontFamily">@font/roboto_regular</item>
+
+
         <!-- New MaterialComponents attributes. -->
         <!--        <item name="colorPrimaryVariant">@color/design_default_color_primary_variant</item>-->
         <!--        <item name="colorSecondaryVariant">@color/design_default_color_secondary_variant</item>-->

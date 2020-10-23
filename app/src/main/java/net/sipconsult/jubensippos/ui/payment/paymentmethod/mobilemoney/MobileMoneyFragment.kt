@@ -83,38 +83,22 @@ class MobileMoneyFragment : ScopedFragment() {
                         1 -> {
                             findNavController().navigate(R.id.cashFragment)
                         }
-//                        2 -> {
-//                            findNavController().navigate(R.id.mobileMoneyFragment)
-//                        }
+                        6 -> {
+                            findNavController().navigate(R.id.chequeFragment)
+                        }
                         4 -> {
                             findNavController().navigate(R.id.loyaltyFragment)
                         }
                         3 -> {
-                            findNavController().navigate(R.id.visaFragment)
+                            findNavController().navigate(R.id.cardFragment)
                         }
                     }
                 }
             })
 
-        textMobileMoney.visibility = View.GONE
-        editTextMobileMoneyPhoneNumber.visibility = View.GONE
+//        textMobileMoney.visibility = View.GONE
+//        editTextMobileMoneyPhoneNumber.visibility = View.GONE
 
-//        editTextMobileMoneyPhoneNumber.setRawInputType(InputType.TYPE_CLASS_TEXT)
-//        editTextMobileMoneyPhoneNumber.setTextIsSelectable(true)
-//        editTextMobileMoneyPhoneNumber.setOnClickListener { hideKeyboard() }
-
-//        editTextMobileMoneyAmount.setRawInputType(InputType.TYPE_CLASS_TEXT)
-//        editTextMobileMoneyAmount.setTextIsSelectable(true)
-//        editTextMobileMoneyAmount.setOnClickListener { hideKeyboard() }
-
-//        val icPhoneNumber: InputConnection =
-//            editTextMobileMoneyPhoneNumber.onCreateInputConnection(EditorInfo())!!
-
-//        val icAmount: InputConnection =
-//            editTextMobileMoneyAmount.onCreateInputConnection(EditorInfo())!!
-
-//        keyboardPayment.setInputConnection(icPhoneNumber)
-//        keyboardPayment.setInputConnection(icAmount)
         disableEditText(editTextMobileMoneyDue)
         disableEditText(editTextMobileMoneyChange)
 

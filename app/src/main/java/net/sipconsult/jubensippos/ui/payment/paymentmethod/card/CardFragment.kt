@@ -1,4 +1,4 @@
-package net.sipconsult.jubensippos.ui.payment.paymentmethod.visa
+package net.sipconsult.jubensippos.ui.payment.paymentmethod.card
 
 import android.content.Context
 import android.os.Bundle
@@ -12,15 +12,15 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import kotlinx.android.synthetic.main.visa_fragment.*
+import kotlinx.android.synthetic.main.card_fragment.*
 import net.sipconsult.jubensippos.R
 import net.sipconsult.jubensippos.SharedViewModel
-import net.sipconsult.jubensippos.databinding.VisaFragmentBinding
+import net.sipconsult.jubensippos.databinding.CardFragmentBinding
 import net.sipconsult.jubensippos.ui.base.ScopedFragment
 
-class VisaFragment : ScopedFragment() {
+class CardFragment : ScopedFragment() {
 
-    private var _binding: VisaFragmentBinding? = null
+    private var _binding: CardFragmentBinding? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -36,26 +36,26 @@ class VisaFragment : ScopedFragment() {
             ViewModelProvider(this)[SharedViewModel::class.java]
         } ?: throw Exception("Invalid Activity")
 
-        _binding = VisaFragmentBinding.inflate(inflater, container, false)
+        _binding = CardFragmentBinding.inflate(inflater, container, false)
         binding.viewModel = sharedViewModel
         binding.lifecycleOwner = viewLifecycleOwner
 
-        sharedViewModel.editTextVisaCardNumber.observe(viewLifecycleOwner, Observer { cardNumber ->
+        sharedViewModel.editTextCardNumber.observe(viewLifecycleOwner, Observer { cardNumber ->
 
             if (!cardNumber.isNullOrEmpty()) {
-                sharedViewModel.visaCardNumber = cardNumber.trim()
+                sharedViewModel.cardNumber = cardNumber.trim()
             } else {
-                sharedViewModel.visaCardNumber = ""
+                sharedViewModel.cardNumber = ""
             }
 
         })
 
-        sharedViewModel.editTextVisaAmount.observe(viewLifecycleOwner, Observer { amount ->
+        sharedViewModel.editTextCardAmount.observe(viewLifecycleOwner, Observer { amount ->
             if (!amount.isNullOrEmpty()) {
-                sharedViewModel.visaAmount = amount.trim().toDouble()
+                sharedViewModel.cardAmount = amount.trim().toDouble()
                 sharedViewModel.deduct()
             } else {
-                sharedViewModel.visaAmount = 0.0
+                sharedViewModel.cardAmount = 0.0
                 sharedViewModel.deduct()
             }
 
@@ -87,33 +87,16 @@ class VisaFragment : ScopedFragment() {
                         4 -> {
                             findNavController().navigate(R.id.loyaltyFragment)
                         }
-//                        3 -> {
-//                            findNavController().navigate(R.id.visaFragment)
-//                        }
+                        6 -> {
+                            findNavController().navigate(R.id.chequeFragment)
+                        }
                     }
                 }
             })
 
         keyboardVisa.visibility = View.GONE
-        editTextVisaCardNumber.visibility = View.GONE
-        textVisa.visibility = View.GONE
-
-//        editTextVisaCardNumber.setRawInputType(InputType.TYPE_CLASS_TEXT)
-//        editTextVisaCardNumber.setTextIsSelectable(true)
-//        editTextVisaCardNumber.setOnClickListener { hideKeyboard() }
-//
-//        editTextVisaAmount.setRawInputType(InputType.TYPE_CLASS_TEXT)
-//        editTextVisaAmount.setTextIsSelectable(true)
-//        editTextVisaAmount.setOnClickListener { hideKeyboard() }
-//
-//        val icCardNumber: InputConnection =
-//            editTextVisaCardNumber.onCreateInputConnection(EditorInfo())!!
-//
-//        val icAmount: InputConnection =
-//            editTextVisaAmount.onCreateInputConnection(EditorInfo())!!
-//
-//        keyboardPayment.setInputConnection(icCardNumber)
-//        keyboardPayment.setInputConnection(icAmount)
+//        editTextVisaCardNumber.visibility = View.GONE
+//        textVisa.visibility = View.GONE
 
         disableEditText(editTextVisaDue)
         disableEditText(editTextVisaChange)

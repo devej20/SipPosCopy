@@ -7,9 +7,9 @@ import net.sipconsult.jubensippos.R
 import net.sipconsult.jubensippos.data.models.CartItem
 
 class ShoppingCartAdapter(
-    private val onSubClick: (Int) -> Unit,
-    private val onAddClick: (Int) -> Unit,
-    private val onDeleteClick: (Int) -> Unit
+    private val onSubClick: (CartItem) -> Unit,
+    private val onAddClick: (CartItem) -> Unit,
+    private val onDeleteClick: (CartItem) -> Unit
 ) : RecyclerView.Adapter<ShoppingCartViewHolder>() {
 
     private var _cartItems: List<CartItem> = listOf()

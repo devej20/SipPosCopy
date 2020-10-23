@@ -20,9 +20,9 @@
         android:label="loyalty_fragment"
         tools:layout="@layout/loyalty_fragment" />
     <fragment
-        android:id="@+id/visaFragment"
-        android:name="net.sipconsult.jubensippos.ui.payment.paymentmethod.visa.VisaFragment"
-        android:label="VisaFragment" />
+        android:id="@+id/cardFragment"
+        android:name="net.sipconsult.jubensippos.ui.payment.paymentmethod.card.CardFragment"
+        android:label="CardFragment" />
     <fragment
         android:id="@+id/chequeFragment"
         android:name="net.sipconsult.jubensippos.ui.payment.paymentmethod.cheque.ChequeFragment"

@@ -60,9 +60,9 @@ class CashFragment : ScopedFragment() {
                 if (paymentMethod != null) {
 
                     when (paymentMethod.id) {
-//                        1 -> {
-//                            findNavController().navigate(R.id.cashFragment)
-//                        }
+                        6 -> {
+                            findNavController().navigate(R.id.chequeFragment)
+                        }
                         2 -> {
                             findNavController().navigate(R.id.mobileMoneyFragment)
                         }
@@ -70,7 +70,7 @@ class CashFragment : ScopedFragment() {
                             findNavController().navigate(R.id.loyaltyFragment)
                         }
                         3 -> {
-                            findNavController().navigate(R.id.visaFragment)
+                            findNavController().navigate(R.id.cardFragment)
                         }
                     }
                 }

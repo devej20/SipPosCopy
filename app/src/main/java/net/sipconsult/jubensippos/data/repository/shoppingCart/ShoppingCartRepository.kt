@@ -63,12 +63,13 @@ object ShoppingCartRepository {
 //        AddCartItemAsyncTask().execute(cartItem)
     }
 
-    fun removeCartItem(item: Int) {
+    fun removeCartItem(cartItem: CartItem) {
         val cart =
             getCart()
-        val cartItem = cart[item]
+        val targetItem = cart.singleOrNull { it.product.code == cartItem.product.code }
+//        val cartItem = cart[cartItem]
 
-        cart.remove(cartItem)
+        cart.remove(targetItem)
 
         saveCart(
             cart
@@ -82,10 +83,9 @@ object ShoppingCartRepository {
     }
 
 
-    fun increaseCartItemQuantity(item: Int) {
+    fun increaseCartItemQuantity(cartItem: CartItem) {
         val cart =
             getCart()
-        val cartItem = cart[item]
 
         val targetItem = cart.singleOrNull { it.product.code == cartItem.product.code }
         if (targetItem != null) {
@@ -103,10 +103,9 @@ object ShoppingCartRepository {
 //        IncreaseCartItemQuantityAsyncTask().execute(item)
     }
 
-    fun decreaseCartItemQuantity(item: Int) {
+    fun decreaseCartItemQuantity(cartItem: CartItem) {
         val cart =
             getCart()
-        val cartItem = cart[item]
         val targetItem = cart.singleOrNull { it.product.code == cartItem.product.code }
         if (targetItem != null) {
             if (targetItem.quantity > 1) {

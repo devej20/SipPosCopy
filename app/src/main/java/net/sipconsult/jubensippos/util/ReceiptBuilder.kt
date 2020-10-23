@@ -275,7 +275,7 @@ class ReceiptBuilder {
             val itemTotalPrice = itemPrice * itemQuantity
             val itemTotalPriceString = decimalFormater.format(itemTotalPrice)
 
-            menuLine("$itemQuantity ${truncate(itemName, 23)} $itemPrice", itemTotalPriceString)
+            menuLine("${truncate(itemName, 21)} $itemQuantity x $itemPrice", itemTotalPriceString)
         }
 
         return this

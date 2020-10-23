@@ -16,16 +16,16 @@ class HomeViewModel(
     val totalPrice: LiveData<Double> = ShoppingCartRepository.totalPrice
 
 
-    fun removeCartItem(cartItemPos: Int) {
-        ShoppingCartRepository.removeCartItem(cartItemPos)
+    fun removeCartItem(cartItem: CartItem) {
+        ShoppingCartRepository.removeCartItem(cartItem)
     }
 
-    fun increaseCartItemQuantity(itemPosition: Int) {
-        ShoppingCartRepository.increaseCartItemQuantity(itemPosition)
+    fun increaseCartItemQuantity(cartItem: CartItem) {
+        ShoppingCartRepository.increaseCartItemQuantity(cartItem)
     }
 
-    fun decreaseCartItemQuantity(itemPosition: Int) {
-        ShoppingCartRepository.decreaseCartItemQuantity(itemPosition)
+    fun decreaseCartItemQuantity(cartItem: CartItem) {
+        ShoppingCartRepository.decreaseCartItemQuantity(cartItem)
     }
 
     fun removeALLCartItem() {
