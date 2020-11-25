@@ -53,10 +53,12 @@ import net.sipconsult.jubensippos.ui.category.CategoryViewModelFactory
 import net.sipconsult.jubensippos.ui.home.HomeViewModelFactory
 import net.sipconsult.jubensippos.ui.login.LoginViewModelFactory
 import net.sipconsult.jubensippos.ui.payment.PaymentViewModelFactory
+import net.sipconsult.jubensippos.ui.payment.paymentmethod.loyalty.LoyaltyViewModelFactory
 import net.sipconsult.jubensippos.ui.products.ProductViewModelFactory
 import net.sipconsult.jubensippos.ui.receipt.ReceiptViewModelFactory
 import net.sipconsult.jubensippos.ui.settings.SettingsViewModelFactory
 import net.sipconsult.jubensippos.ui.transactions.SalesTransactionViewModelFactory
+import net.sipconsult.jubensippos.ui.transactions.refund.RefundViewModelFactory
 import net.sipconsult.jubensippos.util.FileUtils
 import net.sipconsult.jubensippos.util.SunmiPrintHelper
 import org.kodein.di.Kodein
@@ -232,7 +234,11 @@ class SipPOSApplication : Application(), KodeinAware {
 
         bind() from provider { SettingsViewModelFactory(instance()) }
 
+        bind() from provider { LoyaltyViewModelFactory(instance()) }
+
         bind() from provider { SalesTransactionViewModelFactory(instance(), instance()) }
+
+        bind() from provider { RefundViewModelFactory(instance()) }
     }
 
     override fun onCreate() {

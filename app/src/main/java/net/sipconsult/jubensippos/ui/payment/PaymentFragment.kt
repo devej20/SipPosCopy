@@ -22,6 +22,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DividerItemDecoration
 import kotlinx.android.synthetic.main.dialog_authentication.view.*
 import kotlinx.android.synthetic.main.payment_fragment.*
@@ -60,6 +61,8 @@ class PaymentFragment : ScopedFragment(), KodeinAware {
 
     private lateinit var viewModel: PaymentViewModel
     private val viewModelFactory: PaymentViewModelFactory by instance()
+
+    private val args: PaymentFragmentArgs by navArgs()
 
     private var selectedDiscountType: DiscountTypesItem? = null
 
@@ -115,7 +118,12 @@ class PaymentFragment : ScopedFragment(), KodeinAware {
     }
 
     private fun navigateToReceipt() {
-        sharedViewModel.buildReceipt()
+        if (sharedViewModel.transactionType == 1) {
+            sharedViewModel.buildSalesTransactionReceipt()
+        } else if (sharedViewModel.transactionType == 2) {
+            sharedViewModel.buildRefundTransactionReceipt()
+        }
+
         displayName("Juben")
         val action =
             PaymentFragmentDirections.actionPaymentFragmentToReceiptFragment()
@@ -125,6 +133,11 @@ class PaymentFragment : ScopedFragment(), KodeinAware {
     }
 
     private fun bindUI() = launch {
+
+//        sharedViewModel.transactionType = args.transactionType
+
+        if (sharedViewModel.transactionType == 2)
+            listDiscountType.visibility = View.GONE
 
         groupPaymentMethodTransaction.visibility = View.GONE
 
@@ -165,7 +178,8 @@ class PaymentFragment : ScopedFragment(), KodeinAware {
         })
 
         sharedViewModel.totalPrice.observe(viewLifecycleOwner, Observer { total ->
-            textTotalAmountCart.text = String.format("GHC%s", DecimalFormat("0.00").format(total))
+            textTotalAmountCart.text =
+                String.format("GHC%s", DecimalFormat("0.00").format(total))
 
             sharedViewModel.change.observe(viewLifecycleOwner, Observer { change ->
                 displayTotalPriceChange(
@@ -198,7 +212,6 @@ class PaymentFragment : ScopedFragment(), KodeinAware {
         sharedViewModel.salesAgent.observe(viewLifecycleOwner, Observer { saleAgent ->
             if (saleAgent != null) {
                 textSalesAgentName.text = saleAgent.displayName
-
             } else {
                 textSalesAgentName.text = "Sale Agent not Selected"
             }
@@ -249,6 +262,7 @@ class PaymentFragment : ScopedFragment(), KodeinAware {
 
         buttonDeliveryCostAdd.setOnClickListener {
             val deliveryCost = editTextDeliveryCost.text.toString().trim()
+            val totalPrice: Double = ShoppingCartRepository.totalPrice.value!!
             if (deliveryCost.isNotEmpty()) {
                 if (!sharedViewModel.isDeliveryCostAdd) {
                     val deliveryAmount = deliveryCost.toDouble()
@@ -334,8 +348,23 @@ class PaymentFragment : ScopedFragment(), KodeinAware {
                         }
 
                     }
+                    for (p in paymentMethods) {
+                        if (p.id == 4) {
+
+                            if (sharedViewModel.chequeAmount < 0) {
+                                Toast.makeText(
+                                    context,
+                                    "Please Enter Payment Cheque Amount",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+
+                                return@Observer
+                            }
+                        }
+
+                    }
                     val totalAmount =
-                        sharedViewModel.cashAmount + sharedViewModel.mobileMoneyAmount + sharedViewModel.cardAmount
+                        sharedViewModel.cashAmount + sharedViewModel.mobileMoneyAmount + sharedViewModel.cardAmount + sharedViewModel.chequeAmount
 
                     if (totalAmount < totalPrice) {
                         Toast.makeText(context, "Invalid Total Amount", Toast.LENGTH_SHORT)
@@ -345,8 +374,12 @@ class PaymentFragment : ScopedFragment(), KodeinAware {
 
                     groupPaymentMethodTransaction.visibility = View.VISIBLE
                     sharedViewModel.generateReceiptNumber()
-//                    navigateToReceipt()
-                    post()
+                    navigateToReceipt()
+//                    if (sharedViewModel.transactionType == 1) {
+//                        postSalesTrans()
+//                    } else if (sharedViewModel.transactionType == 2) {
+//                        postRefundTrans()
+//                    }
 
                 }
 
@@ -379,8 +412,14 @@ class PaymentFragment : ScopedFragment(), KodeinAware {
         }
     }
 
-    private fun post() = launch {
+    private fun postSalesTrans() = launch {
         val result = sharedViewModel.postTransaction.await()
+        sharedViewModel.updateTransactionResult(result)
+
+    }
+
+    private fun postRefundTrans() = launch {
+        val result = sharedViewModel.postRefundTransaction.await()
         sharedViewModel.updateTransactionResult(result)
 
     }
@@ -424,16 +463,41 @@ class PaymentFragment : ScopedFragment(), KodeinAware {
         if (paymentMethodItemCash == null) {
             sharedViewModel.cashAmount = 0.0
             sharedViewModel.deduct()
+        } else {
+            sharedViewModel.setPaymentMethod(paymentMethodItemCash)
         }
+
         val paymentMethodItemMomo = paymentMethods.find { p -> p.id == 2 }
         if (paymentMethodItemMomo == null) {
             sharedViewModel.mobileMoneyAmount = 0.0
             sharedViewModel.deduct()
+        } else {
+            sharedViewModel.setPaymentMethod(paymentMethodItemMomo)
         }
-        val paymentMethodItemVisa = paymentMethods.find { p -> p.id == 3 }
-        if (paymentMethodItemVisa == null) {
+
+        val paymentMethodItemCard = paymentMethods.find { p -> p.id == 3 }
+        if (paymentMethodItemCard == null) {
             sharedViewModel.cardAmount = 0.0
             sharedViewModel.deduct()
+        } else {
+            sharedViewModel.setPaymentMethod(paymentMethodItemCard)
+        }
+
+        val paymentMethodItemCheque = paymentMethods.find { p -> p.id == 4 }
+        if (paymentMethodItemCheque == null) {
+            sharedViewModel.chequeAmount = 0.0
+            sharedViewModel.deduct()
+        } else {
+            sharedViewModel.setPaymentMethod(paymentMethodItemCheque)
+        }
+
+        val paymentMethodItemLoyalty = paymentMethods.find { p -> p.id == 5 }
+        if (paymentMethodItemLoyalty == null) {
+            sharedViewModel.loyaltyAmount = 0.0
+            sharedViewModel.voucherId = null
+            sharedViewModel.deduct()
+        } else {
+            sharedViewModel.setPaymentMethod(paymentMethodItemLoyalty)
         }
     }
 

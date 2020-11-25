@@ -16,6 +16,8 @@ data class SaleTransactionPostBody(
     val description: String = "",
     @SerializedName("DiscountTypeId")
     var discountTypeId: Int? = null,
+    @SerializedName("VoucherId")
+    var voucherId: Int? = null,
     @SerializedName("DeliveryCost")
     var deliveryCost: Double? = null,
     @SerializedName("SalesTransactionPaymentMethod")

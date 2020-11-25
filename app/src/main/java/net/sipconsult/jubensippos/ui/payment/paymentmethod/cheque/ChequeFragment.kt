@@ -83,7 +83,7 @@ class ChequeFragment : Fragment() {
                         2 -> {
                             findNavController().navigate(R.id.mobileMoneyFragment)
                         }
-                        4 -> {
+                        5 -> {
                             findNavController().navigate(R.id.loyaltyFragment)
                         }
                         3 -> {

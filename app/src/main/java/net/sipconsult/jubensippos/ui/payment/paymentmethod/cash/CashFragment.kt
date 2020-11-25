@@ -55,18 +55,16 @@ class CashFragment : ScopedFragment() {
         sharedViewModel.selectedPaymentMethod.observe(
             viewLifecycleOwner,
             Observer { paymentMethod ->
-
-
                 if (paymentMethod != null) {
 
                     when (paymentMethod.id) {
-                        6 -> {
+                        4 -> {
                             findNavController().navigate(R.id.chequeFragment)
                         }
                         2 -> {
                             findNavController().navigate(R.id.mobileMoneyFragment)
                         }
-                        4 -> {
+                        5 -> {
                             findNavController().navigate(R.id.loyaltyFragment)
                         }
                         3 -> {

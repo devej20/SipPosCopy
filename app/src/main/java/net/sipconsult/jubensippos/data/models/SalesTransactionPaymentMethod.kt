@@ -8,8 +8,6 @@ data class SalesTransactionPaymentMethod(
     val id: Int,
     @SerializedName("paymentMethod")
     val paymentMethod: PaymentMethodItem,
-    @SerializedName("paymentMethodId")
-    val paymentMethodId: Int,
     @SerializedName("transactionId")
     val transactionId: Int
 )

@@ -1,7 +1,9 @@
 package net.sipconsult.jubensippos.data.network
 
 import kotlinx.coroutines.Deferred
+import net.sipconsult.jubensippos.data.models.RefundTransactionPostBody
 import net.sipconsult.jubensippos.data.models.SaleTransactionPostBody
+import net.sipconsult.jubensippos.data.models.SalesTransactionsItem
 import net.sipconsult.jubensippos.data.models.SignInBody
 import net.sipconsult.jubensippos.data.network.response.*
 import okhttp3.Interceptor
@@ -11,8 +13,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*
 import java.util.concurrent.TimeUnit
 
-
 interface SipShopApiService {
+
     @GET("categories")
     fun getProductCategoriesAsync(): Deferred<ProductCategories>
 
@@ -48,8 +50,20 @@ interface SipShopApiService {
     suspend fun postTransactionAsync(@Body body: SaleTransactionPostBody): TransactionResponse
 
     @Headers("Content-Type: application/json")
-    @GET("api/stockTransactions/operator/{operatorId}")
-    suspend fun getTransactionAsync(@Path("operatorId") operatorId: String): SalesTransactions
+    @POST("api/SalesTransactions/refund")
+    suspend fun postRefundTransactionAsync(@Body body: RefundTransactionPostBody): TransactionResponse
+
+    @Headers("Content-Type: application/json")
+    @GET("api/SalesTransactions/{transactionId}")
+    suspend fun getTransactionAsync(@Path("transactionId") transactionId: Int): SalesTransactionsItem
+
+    @Headers("Content-Type: application/json")
+    @GET("api/SalesTransactions/operator/{operatorId}")
+    suspend fun getTransactionsAsync(@Path("operatorId") operatorId: String): SalesTransactions
+
+    @Headers("Content-Type: application/json")
+    @GET("api/SalesTransactions/Location/{locationCode}")
+    suspend fun getLocationTransactionsAsync(@Path("locationCode") locationCode: String): SalesTransactions
 
     @GET("api/SalesAgent")
     suspend fun getSalesAgentsAsync(): SalesAgents
@@ -68,7 +82,6 @@ interface SipShopApiService {
                     .newBuilder()
                     .url(url)
                     .build()
-
                 return@Interceptor chain.proceed(request)
             }
 
@@ -77,7 +90,6 @@ interface SipShopApiService {
                 .writeTimeout(60, TimeUnit.SECONDS)
                 .readTimeout(60, TimeUnit.SECONDS)
                 .addInterceptor(connectivityInterceptor)
-
                 .build()
 
 /*

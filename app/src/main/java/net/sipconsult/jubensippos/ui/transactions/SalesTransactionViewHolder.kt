@@ -7,24 +7,25 @@ import net.sipconsult.jubensippos.data.models.SalesTransactionsItem
 
 class SalesTransactionViewHolder(
     itemView: View,
-    onTransactionClick: (Int) -> Unit
+    onTransactionClick: (SalesTransactionsItem) -> Unit
 ) : RecyclerView.ViewHolder(itemView) {
     private var _position: Int = 0
+    private lateinit var _salesTransaction: SalesTransactionsItem
     fun bind(
         salesTransaction: SalesTransactionsItem,
         position: Int
     ) {
         _position = position
+        _salesTransaction = salesTransaction
         itemView.textSaleTransactionDate.text = salesTransaction.date
-//        itemView.textSaleTransactionPaymentMethod.text = salesTransaction.paymentMethod.name
+        itemView.textSaleTransactionLocation.text = salesTransaction.location?.name ?: ""
         itemView.textSaleTransactionReceiptNumber.text = salesTransaction.receiptNumber
-        itemView.textSaleTransactionDescription.text = salesTransaction.description
-        itemView.textSaleTransactionTotalSales.text = salesTransaction.totalSales.toString()
+        itemView.textSaleTransactionTotalSales.text = salesTransaction.totalSalesStr
     }
 
     init {
         itemView.setOnClickListener {
-            onTransactionClick(_position)
+            onTransactionClick(_salesTransaction)
         }
     }
 }

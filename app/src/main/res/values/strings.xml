@@ -21,7 +21,7 @@
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
     <string name="transaction_failed">"Transaction failed"</string>
-    <string name="voucher_failed">"Voucher failed"</string>
+    <string name="voucher_failed">"Voucher Not found or Used"</string>
     <string name="text_print_receipt">Print Receipt</string>
     <string name="text_next_order">Next Order</string>
     <string name="text_back">Back</string>
@@ -48,4 +48,5 @@
     <string name="hint_mobile_number">Mobile Number</string>
     <string name="hint_amount_paid">Amount Paid</string>
     <string name="text_pleas_wait">Pleas wait....</string>
+
 </resources>

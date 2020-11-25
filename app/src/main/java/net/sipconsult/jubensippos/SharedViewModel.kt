@@ -20,7 +20,6 @@ import net.sipconsult.jubensippos.internal.Result
 import net.sipconsult.jubensippos.internal.lazyDeferred
 import net.sipconsult.jubensippos.ui.login.AuthenticationState
 import net.sipconsult.jubensippos.ui.payment.TransactionResult
-import net.sipconsult.jubensippos.ui.payment.paymentmethod.loyalty.VoucherResult
 import net.sipconsult.jubensippos.util.Receipt
 import net.sipconsult.jubensippos.util.ReceiptBuilder
 import java.text.DecimalFormat
@@ -46,6 +45,8 @@ class SharedViewModel(
     //    lateinit var user: LoggedInUser
     private val locationId = locationProvider.getLocation()
 
+    var transactionType: Int = 1
+    var salesTransactionId: Int = 0
     private var dateNow = Date()
     private var receiptNumber: String = ""
     private var total: Double = 0.0
@@ -53,7 +54,7 @@ class SharedViewModel(
     private val decimalFormater = DecimalFormat("0.00")
     private var username: String = ""
     var email: String = ""
-    var voucherCode: String = ""
+
 
     private var isReceiptNumberGenerated: Boolean = false
     var isPrintReceipt: Boolean = false
@@ -66,17 +67,18 @@ class SharedViewModel(
     private val _user = MutableLiveData<LoggedInUser>()
     val user: LiveData<LoggedInUser> = _user
 
-    val cartItems: LiveData<MutableList<CartItem>> = ShoppingCartRepository.cartItems
+    var cartItems: LiveData<MutableList<CartItem>> = ShoppingCartRepository.cartItems
+    var refundCartItems: LiveData<MutableList<CartItem>> = ShoppingCartRepository.refundCartItems
     val location: LocationsItem = locationRepository.getLocation(locationId)
 
     val totalCartPrice: LiveData<Double> = ShoppingCartRepository.totalPrice
 
     private var _totalPrice = MutableLiveData<Double>()
     val totalPrice: LiveData<Double> = _totalPrice
+
     private var _totalDiscountPrice = MutableLiveData<Double>()
     var totalDiscountPrice = _totalDiscountPrice
 
-    val totalQuantity: LiveData<Int> = ShoppingCartRepository.totalQuantity
 
     private val _paymentMethods = MutableLiveData<ArrayList<PaymentMethodItem>>()
     val paymentMethods: LiveData<ArrayList<PaymentMethodItem>> = _paymentMethods
@@ -92,30 +94,36 @@ class SharedViewModel(
     private val _salesAgent = MutableLiveData<SalesAgentsItem>()
     val salesAgent: LiveData<SalesAgentsItem> = _salesAgent
 
-    val _voucherResult = MutableLiveData<VoucherResult>()
-    val voucherResult: LiveData<VoucherResult> = _voucherResult
-
-
     private val _transactionResult = MutableLiveData<Event<TransactionResult>>()
     val transactionResult: LiveData<Event<TransactionResult>> = _transactionResult
 
     val editTextTender = MutableLiveData<String>()
     var cashAmount: Double = 0.0
+    var cash: Double = 0.0
 
     val editTextMobileMoneyPhoneNumber = MutableLiveData<String>()
     var mobileMoneyPhoneNumber: String = ""
     var editTextMobileMoneyAmount = MutableLiveData<String>()
     var mobileMoneyAmount: Double = 0.0
+    var mobileMoney: Double = 0.0
 
     val editTextCardNumber = MutableLiveData<String>()
     var cardNumber: String = ""
     val editTextCardAmount = MutableLiveData<String>()
     var cardAmount: Double = 0.0
+    var card: Double = 0.0
 
     val editTextChequeNumber = MutableLiveData<String>()
     var chequeNumber: String = ""
     val editTextChequeAmount = MutableLiveData<String>()
     var chequeAmount: Double = 0.0
+    var cheque: Double = 0.0
+
+    var scanSuccessful: Boolean = false
+    var voucherId: Int? = null
+    val editTextLoyaltyAmount = MutableLiveData<String>()
+    var loyaltyAmount: Double = 0.0
+    var loyalty: Double = 0.0
 
     var totalAmount: Double = 0.0
 
@@ -142,8 +150,16 @@ class SharedViewModel(
     }
 
     fun setTotalPrice() {
-        _totalPrice.postValue(ShoppingCartRepository.totalCartPrice)
+        if (transactionType == 1) {
+            _totalPrice.postValue(ShoppingCartRepository.totalCartPrice)
+        } else if (transactionType == 2) {
+            _totalPrice.postValue(ShoppingCartRepository.refundTotalCartPrice)
+        }
     }
+
+//    fun setRefundTotalPrice() {
+//        _refundTotalPrice.postValue(ShoppingCartRepository.refundTotalCartPrice)
+//    }
 
     fun logout() {
         userRepository.logout()
@@ -156,20 +172,19 @@ class SharedViewModel(
 
 
     fun deduct() {
-        val totalAmount = cashAmount + mobileMoneyAmount + cardAmount
+        val totalAmount = cashAmount + mobileMoneyAmount + cardAmount + chequeAmount + loyaltyAmount
         val change: Double = totalAmount - totalPrice.value!!
         _change.value = decimalFormater.format(change)
-
     }
 
     fun addDeliveryCost() {
         val newTotalPrice: Double = totalPrice.value!! + deliveryCost
-        _totalPrice.postValue(decimalFormater.format(newTotalPrice).toDouble())
+        _totalPrice.value = (decimalFormater.format(newTotalPrice).toDouble())
     }
 
     fun subDeliveryCost() {
         val newTotalPrice: Double = totalPrice.value!! - deliveryCost
-        _totalPrice.postValue(decimalFormater.format(newTotalPrice).toDouble())
+        _totalPrice.value = (decimalFormater.format(newTotalPrice).toDouble())
     }
 
 
@@ -195,12 +210,6 @@ class SharedViewModel(
 
     val discountTypes by lazyDeferred {
         discountTypeRepository.getDiscountTypes()
-    }
-
-    val getVoucher by lazyDeferred {
-
-        paymentMethodRepository.getVoucher(voucherCode)
-
     }
 
     private fun compareToDay(date1: Date?, date2: Date?): Int {
@@ -258,7 +267,11 @@ class SharedViewModel(
                 editor.putLong(KEY_CURRENT_INDEX, newIndex).apply()
             }
 
-            return receiptNumber
+            return if (transactionType == 1) {
+                receiptNumber
+            } else {
+                receiptNumber + "R"
+            }
         }
 
     fun generateReceiptNumber() {
@@ -270,30 +283,32 @@ class SharedViewModel(
     }
 
     fun updateTotalPrice(newTotalPrice: Double) {
-        _totalPrice.postValue(
-            decimalFormater.format(newTotalPrice).toDouble()
-        )
+        _totalPrice.value = (
+                decimalFormater.format(newTotalPrice).toDouble()
+                )
     }
 
     fun updateDiscountPrice(discountPrice: Double) {
-        _totalDiscountPrice.postValue(
-            decimalFormater.format(discountPrice).toDouble()
-        )
+        _totalDiscountPrice.value = (
+                decimalFormater.format(discountPrice).toDouble()
+                )
 
     }
 
     private fun calVAT(): String {
-        val vatDiscount = 0.03
-        val vatAmount: Double = vatDiscount.times(total)
-        val newTotalPrice: Double = total - vatAmount
+        val vatDiscount = 3.toDouble() / 103
+        val vTotal: Double = total - deliveryCost
+        val vatAmount = vatDiscount.times(vTotal)
+//        val newTotalPrice: Double = total - vatAmount
         return decimalFormater.format(vatAmount)
 
     }
 
     private fun calSubTotal(): String {
-        val vatDiscount = 0.03
+        val vatDiscount = 100.toDouble() / 103
         val vatAmount: Double = vatDiscount.times(total)
-        val subTotal: Double = total - (vatAmount + deliveryCost)
+        val sTotal: Double = total - deliveryCost
+        val subTotal: Double = (vatDiscount.times(sTotal))
         return decimalFormater.format(subTotal)
 
     }
@@ -335,6 +350,16 @@ class SharedViewModel(
                     pm.displayName = "Card Amount Paid"
                     paymentMethodItem = pm
                 }
+                4 -> {
+                    pm.amountPaid = chequeAmount
+                    pm.displayName = "Cheque Amount Paid"
+                    paymentMethodItem = pm
+                }
+                5 -> {
+                    pm.amountPaid = loyaltyAmount
+                    pm.displayName = "Gift Voucher Amount Paid"
+                    paymentMethodItem = pm
+                }
             }
             paymentMethodItems.add(paymentMethodItem)
         }
@@ -342,12 +367,11 @@ class SharedViewModel(
         return paymentMethodItems
     }
 
-    fun buildReceipt() {
+    fun buildSalesTransactionReceipt() {
         val items = cartItems.value!!
         total = totalPrice.value!!.toDouble()
         val dateStr = DateFormat.format("dd/MM/yyyy", dateNow).toString()
         val timeStr = DateFormat.format("HH:mm:ss", dateNow).toString()
-        val totalString = decimalFormater.format(total)
         val locationR = locationRepository.getLocation(locationId)
         val userR = user.value!!
         val salesAgentR = salesAgent.value!!
@@ -356,6 +380,8 @@ class SharedViewModel(
         val vat = calVAT()
         val paymentMethodsR = receiptPaymentMethod()
         val paymentMethodsSR = paymentMethodsStr()
+        val totalString = decimalFormater.format((total))
+
 
         receipt =
             if (discountType.value != null) {
@@ -425,6 +451,48 @@ class SharedViewModel(
             }
     }
 
+    fun buildRefundTransactionReceipt() {
+        val items = refundCartItems.value!!
+        total = totalPrice.value!!.toDouble()
+        val dateStr = DateFormat.format("dd/MM/yyyy", dateNow).toString()
+        val timeStr = DateFormat.format("HH:mm:ss", dateNow).toString()
+        val totalString = decimalFormater.format(total)
+        val locationR = locationRepository.getLocation(locationId)
+        val userR = user.value!!
+        val subTotal = calSubTotal()
+        val vat = calVAT()
+        val paymentMethodsR = receiptPaymentMethod()
+        val paymentMethodsSR = paymentMethodsStr()
+
+        receipt = ReceiptBuilder()
+            .header("JUBEN HOUSE OF BEAUTY")
+            .text(locationR.address)
+            .text("Tel: ${locationR.telephone}")
+            .text("Mobile: ${locationR.mobileNumber1}")
+            .text("WhatsApp: ${locationR.mobileNumber2}")
+            .text("Tin: C0005355370")
+            .subHeader("REFUND RECEIPT")
+            .divider()
+            .text("Date: $dateStr")
+            .text("Time: $timeStr")
+            .text("Receipt No: $receiptNumber")
+            .text("Operator: ${userR.displayName}")
+            .text("Shop: ${locationR.name}")
+            .divider()
+            .subHeader("Items")
+            .menuItems(items)
+            .dividerDouble()
+            .menuLine("SubTotal", "GHC $subTotal")
+            .menuLine("3% VAT Rate", "GHC $vat")
+            .menuLine("Total", "GHC $totalString")
+            .menuPaymentMethod(paymentMethodsR)
+            .menuLine("Payment Method", paymentMethodsSR)
+            .dividerDouble()
+            .stared("THANK YOU")
+            .build()
+
+    }
+
 
     val postTransaction by lazyDeferred {
 
@@ -439,19 +507,79 @@ class SharedViewModel(
         }
 
         val paymentMethods = arrayListOf<SalesTransactionPostPaymentMethod>()
+
+        if (deliveryCost >= 1) {
+
+            val paymentMethodItems = arrayListOf<PaymentMethodItem>()
+            for (pm in _paymentMethods.value!!) {
+                lateinit var paymentMethodItem: PaymentMethodItem
+                when (pm.id) {
+                    1 -> {
+                        pm.amountPaid = cashAmount
+                        paymentMethodItem = pm
+                    }
+                    2 -> {
+                        pm.amountPaid = mobileMoneyAmount
+                        paymentMethodItem = pm
+                    }
+                    3 -> {
+                        pm.amountPaid = cardAmount
+                        paymentMethodItem = pm
+                    }
+                    4 -> {
+                        pm.amountPaid = chequeAmount
+                        paymentMethodItem = pm
+                    }
+                    5 -> {
+                        pm.amountPaid = loyaltyAmount
+                        paymentMethodItem = pm
+                    }
+                }
+                paymentMethodItems.add(paymentMethodItem)
+            }
+
+            var largestPaymentMethod = paymentMethodItems[0]
+            for (payMthd in paymentMethodItems) {
+                if (largestPaymentMethod.amountPaid < payMthd.amountPaid) {
+                    largestPaymentMethod = payMthd
+                }
+            }
+
+//            lateinit var paymentMethodItem: PaymentMethodItem
+            when (largestPaymentMethod.id) {
+                1 -> {
+                    cashAmount -= deliveryCost
+                }
+                2 -> {
+                    mobileMoneyAmount -= deliveryCost
+                }
+                3 -> {
+                    cardAmount -= deliveryCost
+                }
+                4 -> {
+                    chequeAmount -= deliveryCost
+                }
+                5 -> {
+                    loyaltyAmount -= deliveryCost
+                }
+            }
+
+        }
+
         for (paymentMethod in _paymentMethods.value!!) {
             lateinit var salesTransactionPostPaymentMethod: SalesTransactionPostPaymentMethod
             when (paymentMethod.id) {
                 1 -> {
-                    salesTransactionPostPaymentMethod = if (totalPrice.value!! > cashAmount) {
+                    val availableChange = change.value!!.toDouble()
+                    salesTransactionPostPaymentMethod = if (availableChange > 0) {
                         SalesTransactionPostPaymentMethod(
                             paymentMethodId = paymentMethod.id,
-                            amount = cashAmount
+                            amount = (cashAmount - availableChange)
                         )
                     } else {
                         SalesTransactionPostPaymentMethod(
                             paymentMethodId = paymentMethod.id,
-                            amount = (cashAmount - change.value!!.toDouble())
+                            amount = cashAmount
                         )
                     }
 
@@ -468,9 +596,25 @@ class SharedViewModel(
                         amount = cardAmount
                     )
                 }
+                4 -> {
+                    salesTransactionPostPaymentMethod = SalesTransactionPostPaymentMethod(
+                        paymentMethodId = paymentMethod.id,
+                        amount = chequeAmount
+                    )
+                }
+                5 -> {
+                    salesTransactionPostPaymentMethod = SalesTransactionPostPaymentMethod(
+                        paymentMethodId = paymentMethod.id,
+                        amount = loyaltyAmount
+                    )
+                }
             }
             paymentMethods.add(salesTransactionPostPaymentMethod)
         }
+        cash = cashAmount
+        mobileMoney = mobileMoneyAmount
+        card = cardAmount
+        cheque = chequeAmount
 
         val body = SaleTransactionPostBody(
             locationCode = locationP.code,
@@ -485,11 +629,113 @@ class SharedViewModel(
             body.discountTypeId = discountType.value?.id
         }
 
+        if (voucherId != null) {
+            body.voucherId = voucherId
+        }
+
         if (editTextDeliveryCost.value != null && deliveryCost > 0.0) {
             body.deliveryCost = deliveryCost
         }
 
         transactionRepository.postTransaction(body)
+    }
+
+    val postRefundTransaction by lazyDeferred {
+
+        val locationP = locationRepository.getLocation(locationId)
+        val products = arrayListOf<RefundTransactionPostProduct>()
+        for (item in refundCartItems.value!!) {
+            val product = RefundTransactionPostProduct(
+                productCode = item.product.code,
+                quantity = item.quantity
+            )
+            products.add(product)
+        }
+
+        val paymentMethods = arrayListOf<RefundTransactionPostPaymentMethod>()
+
+/*
+        if (deliveryCost >= 1) {
+
+            for (paymentMethod in _paymentMethods.value!!) {
+                when (paymentMethod.id) {
+                    1 -> {
+                        cashAmount -= deliveryCost
+                    }
+                    2 -> {
+                        mobileMoneyAmount -= deliveryCost
+                    }
+                    3 -> {
+                        cardAmount -= deliveryCost
+                    }
+                    4 -> {
+                        chequeAmount -= deliveryCost
+                    }
+                }
+            }
+        }
+*/
+
+        for (paymentMethod in _paymentMethods.value!!) {
+            lateinit var salesTransactionPostPaymentMethod: RefundTransactionPostPaymentMethod
+            when (paymentMethod.id) {
+                1 -> {
+                    val availableChange = change.value!!.toDouble()
+                    salesTransactionPostPaymentMethod = if (availableChange > 0) {
+                        RefundTransactionPostPaymentMethod(
+                            paymentMethodId = paymentMethod.id,
+                            amount = (cashAmount - availableChange)
+                        )
+                    } else {
+                        RefundTransactionPostPaymentMethod(
+                            paymentMethodId = paymentMethod.id,
+                            amount = cashAmount
+                        )
+                    }
+
+                }
+                2 -> {
+                    salesTransactionPostPaymentMethod = RefundTransactionPostPaymentMethod(
+                        paymentMethodId = paymentMethod.id,
+                        amount = mobileMoneyAmount
+                    )
+                }
+                3 -> {
+                    salesTransactionPostPaymentMethod = RefundTransactionPostPaymentMethod(
+                        paymentMethodId = paymentMethod.id,
+                        amount = cardAmount
+                    )
+                }
+                4 -> {
+                    salesTransactionPostPaymentMethod = RefundTransactionPostPaymentMethod(
+                        paymentMethodId = paymentMethod.id,
+                        amount = chequeAmount
+                    )
+                }
+                5 -> {
+                    salesTransactionPostPaymentMethod = RefundTransactionPostPaymentMethod(
+                        paymentMethodId = paymentMethod.id,
+                        amount = loyaltyAmount
+                    )
+                }
+            }
+            paymentMethods.add(salesTransactionPostPaymentMethod)
+        }
+        cash = cashAmount
+        mobileMoney = mobileMoneyAmount
+        card = cardAmount
+        cheque = chequeAmount
+
+        val body = RefundTransactionPostBody(
+            salesTransactionId = salesTransactionId,
+            locationCode = locationP.code,
+            operatorUserId = user.value!!.id,
+            receiptNumber = receiptNumber,
+            refundTransactionProduct = products,
+            refundTransactionPaymentMethod = paymentMethods
+        )
+
+        transactionRepository.postRefundTransaction(body)
     }
 
     fun updateTransactionResult(result: Result<TransactionResponse>) {
@@ -572,6 +818,7 @@ class SharedViewModel(
 
     fun resetAll() {
         ShoppingCartRepository.removeALLCartItem()
+        ShoppingCartRepository.removeALLRefundCartItem()
         _paymentMethods.postValue(null)
         _discountType.postValue(null)
         _salesAgent.postValue(null)
@@ -589,7 +836,6 @@ class SharedViewModel(
         _paymentMethods.postValue(null)
         _discountType.postValue(null)
         _salesAgent.postValue(null)
-
     }
 
     fun resetTransaction() {

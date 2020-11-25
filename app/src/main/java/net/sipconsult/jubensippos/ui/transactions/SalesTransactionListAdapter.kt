@@ -9,7 +9,7 @@ import net.sipconsult.jubensippos.R
 import net.sipconsult.jubensippos.data.models.SalesTransactionsItem
 import java.util.*
 
-class SalesTransactionListAdapter(private val onTransactionClick: (Int) -> Unit) :
+class SalesTransactionListAdapter(private val onTransactionClick: (SalesTransactionsItem) -> Unit) :
     RecyclerView.Adapter<SalesTransactionViewHolder>(), Filterable {
 
     private var _salesTransaction = arrayListOf<SalesTransactionsItem>()
@@ -42,12 +42,12 @@ class SalesTransactionListAdapter(private val onTransactionClick: (Int) -> Unit)
                     _salesTransaction
                 } else {
                     val resultList: ArrayList<SalesTransactionsItem> = arrayListOf()
-                    for (product in _salesTransaction) {
-//                        if (product.name.toLowerCase(Locale.ROOT)
-//                                .contains(charSearch.toLowerCase(Locale.ROOT))
-//                        ) {
-//                            resultList.add(product)
-//                        }
+                    for (transactionsItem in _salesTransaction) {
+                        if (transactionsItem.receiptNumber.toLowerCase(Locale.ROOT)
+                                .contains(charSearch.toLowerCase(Locale.ROOT))
+                        ) {
+                            resultList.add(transactionsItem)
+                        }
                     }
                     resultList
                 }

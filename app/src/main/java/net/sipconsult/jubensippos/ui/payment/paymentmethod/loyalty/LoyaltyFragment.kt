@@ -1,10 +1,13 @@
 package net.sipconsult.jubensippos.ui.payment.paymentmethod.loyalty
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.lifecycle.Observer
@@ -15,14 +18,19 @@ import com.google.zxing.integration.android.IntentResult
 import kotlinx.android.synthetic.main.loyalty_fragment.*
 import kotlinx.coroutines.launch
 import net.sipconsult.jubensippos.R
+import net.sipconsult.jubensippos.ScanningActivity
 import net.sipconsult.jubensippos.SharedViewModel
 import net.sipconsult.jubensippos.data.models.Voucher
 import net.sipconsult.jubensippos.databinding.LoyaltyFragmentBinding
-import net.sipconsult.jubensippos.internal.Result
 import net.sipconsult.jubensippos.ui.base.ScopedFragment
+import org.kodein.di.KodeinAware
+import org.kodein.di.android.x.closestKodein
+import org.kodein.di.generic.instance
+import java.util.*
 
-class LoyaltyFragment : ScopedFragment() {
+class LoyaltyFragment : ScopedFragment(), KodeinAware {
 
+    override val kodein by closestKodein()
     private var _binding: LoyaltyFragmentBinding? = null
 
     // This property is only valid between onCreateView and
@@ -31,43 +39,78 @@ class LoyaltyFragment : ScopedFragment() {
 
     private lateinit var sharedViewModel: SharedViewModel
 
+    private lateinit var viewModel: LoyaltyViewModel
+    private val viewModelFactory: LoyaltyViewModelFactory by instance()
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.loyalty_fragment, container, false)
+        sharedViewModel = activity?.run {
+            ViewModelProvider(this)[SharedViewModel::class.java]
+        } ?: throw Exception("Invalid Activity")
+
+        viewModel =
+            ViewModelProvider(this, viewModelFactory).get(LoyaltyViewModel::class.java)
+
+        _binding = LoyaltyFragmentBinding.inflate(inflater, container, false)
+        binding.viewModel = sharedViewModel
+        binding.lifecycleOwner = viewLifecycleOwner
+
+        return binding.root
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        sharedViewModel = activity?.run {
-            ViewModelProvider(this)[SharedViewModel::class.java]
-        } ?: throw Exception("Invalid Activity")
 
         buildUI()
     }
 
     private fun buildUI() {
 
-        groupLoyaltyLoading.visibility = View.GONE
-        groupLoyaltyResult.visibility = View.GONE
+        if (sharedViewModel.scanSuccessful) {
+            groupLoyaltyScan.visibility = View.GONE
+            groupLoyaltyLoading.visibility = View.GONE
+            groupLoyaltyResult.visibility = View.VISIBLE
+        } else {
+            groupLoyaltyScan.visibility = View.VISIBLE
+            groupLoyaltyLoading.visibility = View.GONE
+            groupLoyaltyResult.visibility = View.GONE
+        }
 
-        sharedViewModel.voucherResult.observe(
+
+//        groupLoyaltyScan.visibility = View.GONE
+
+//        textLoyaltyTender.visibility = View.GONE
+//        editTextLoyaltyTender.visibility = View.GONE
+
+        viewModel.voucherResult.observe(
             viewLifecycleOwner,
             Observer { result ->
                 result ?: return@Observer
                 groupLoyaltyLoading.visibility = View.GONE
 
                 result.error?.let {
+                    sharedViewModel.scanSuccessful = false
                     groupLoyaltyScan.visibility = View.VISIBLE
                     showVoucherFailed(it)
                 }
                 result.success?.let {
+                    sharedViewModel.scanSuccessful = true
                     groupLoyaltyResult.visibility = View.VISIBLE
                     updateUiWithVoucher(it)
                 }
             })
 
+        sharedViewModel.editTextLoyaltyAmount.observe(viewLifecycleOwner, Observer {
+            if (!it.isNullOrEmpty()) {
+                sharedViewModel.loyaltyAmount = it.trim().toDouble()
+                sharedViewModel.deduct()
+            } else {
+                sharedViewModel.loyaltyAmount = 0.0
+                sharedViewModel.deduct()
+            }
+        })
         sharedViewModel.selectedPaymentMethod.observe(viewLifecycleOwner, Observer {
 
                 paymentMethod ->
@@ -81,7 +124,7 @@ class LoyaltyFragment : ScopedFragment() {
                         findNavController().navigate(R.id.mobileMoneyFragment)
                     }
                     4 -> {
-                        findNavController().navigate(R.id.loyaltyFragment)
+                        findNavController().navigate(R.id.chequeFragment)
                     }
                     3 -> {
                         findNavController().navigate(R.id.cardFragment)
@@ -91,21 +134,33 @@ class LoyaltyFragment : ScopedFragment() {
         })
 
         buttonScanQrCode.setOnClickListener {
-            startScanZxing()
+            startExternalScanSunmi()
         }
 
-
+        disableEditText(editTextLoyaltyDue)
+        disableEditText(editTextLoyaltyChange)
     }
 
     private fun updateUiWithVoucher(voucher: Voucher) {
         val price = sharedViewModel.totalPrice.value
 //        editTextLoyaltyDue.setText(price)
-        editTextLoyaltyValue.setText(voucher.value)
+        editTextLoyaltyValue.setText(voucher.value.toString())
+        sharedViewModel.voucherId = voucher.id
+        sharedViewModel.loyaltyAmount = voucher.value
+        sharedViewModel.deduct()
     }
 
     private fun showVoucherFailed(@StringRes errorString: Int) {
         val appContext = context?.applicationContext ?: return
         Toast.makeText(appContext, errorString, Toast.LENGTH_LONG).show()
+    }
+
+    private fun disableEditText(editText: EditText) {
+        editText.isFocusable = false
+//        editText.isEnabled = false
+        editText.isCursorVisible = false
+        editText.keyListener = null
+//        editText.setBackgroundColor(Color.TRANSPARENT)
     }
 
     private fun startScanZxing() {
@@ -117,8 +172,47 @@ class LoyaltyFragment : ScopedFragment() {
         integrator.initiateScan()
     }
 
+    private fun startExternalScanSunmi() {
+        val intent = Intent(context, ScanningActivity::class.java)
+        startActivityForResult(intent, EXTERNAL_SCANNER_CODE)
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 
+        if (requestCode == INTERNAL_SCANNER_CODE && data != null) {
+            val bundle = data.extras
+            val result = bundle!!.getSerializable("data") as ArrayList<HashMap<String, String>>
+
+            val it: MutableIterator<Any>? = result.iterator()
+
+            while (it!!.hasNext()) {
+                val hashMap = it.next() as HashMap<String, String>
+
+                val scanType = hashMap["TYPE"]!!
+                val scanResult = hashMap["VALUE"]!!
+
+                Log.i("sunmi_scanner_type: ", scanType)//this is the type of the code
+//                Toast.makeText(activity, "Scan Type：$scanType", Toast.LENGTH_SHORT).show()
+
+                Log.i("sunmi_scanner_result: ", scanResult)//this is the result of the code
+//                Toast.makeText(activity, "Results：$scanResult", Toast.LENGTH_SHORT).show()
+
+                val barcode: String = scanResult
+                addScannedVoucher(barcode)
+
+            }
+        }
+        if (requestCode == EXTERNAL_SCANNER_CODE && data != null) {
+            if (resultCode == Activity.RESULT_OK) {
+                val barcode: String = data.getStringExtra("product_barcode").toString()
+                addScannedVoucher(barcode)
+
+            }
+            if (resultCode == Activity.RESULT_CANCELED) {
+                Toast.makeText(activity, "Cancelled", Toast.LENGTH_LONG).show()
+            }
+
+        }
         val result =
             IntentIntegrator.parseActivityResult(requestCode, resultCode, data)
         if (result != null) {
@@ -127,30 +221,33 @@ class LoyaltyFragment : ScopedFragment() {
             } else {
                 scanResult(result)
             }
-        } else {
-            super.onActivityResult(requestCode, resultCode, data)
         }
+        super.onActivityResult(requestCode, resultCode, data)
     }
 
     private fun scanResult(result: IntentResult?) {
         Toast.makeText(activity, "Scanned: " + result!!.contents, Toast.LENGTH_SHORT).show()
         groupLoyaltyLoading.visibility = View.VISIBLE
         groupLoyaltyScan.visibility = View.GONE
-        sharedViewModel.voucherCode = result.contents.toString()
+        viewModel.voucherCode = result.contents.toString()
+        ldIn()
+    }
+
+    private fun addScannedVoucher(barcode: String) {
+        groupLoyaltyLoading.visibility = View.VISIBLE
+        groupLoyaltyScan.visibility = View.GONE
+        viewModel.voucherCode = barcode
         ldIn()
     }
 
     private fun ldIn() = launch {
-        val result = sharedViewModel.getVoucher.await()
-        if (result is Result.Success) {
-            sharedViewModel._voucherResult.value =
-                VoucherResult(
-                    success = result.data
-                )
-        } else {
-            sharedViewModel._voucherResult.value =
-                VoucherResult(error = R.string.voucher_failed)
-        }
+        val result = viewModel.getVoucher.await()
+        viewModel.updateVoucherResult(result)
+    }
+
+    companion object {
+        private const val INTERNAL_SCANNER_CODE: Int = 100
+        private const val EXTERNAL_SCANNER_CODE: Int = 101
     }
 
     override fun onDestroyView() {

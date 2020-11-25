@@ -16,20 +16,23 @@ class ScanningActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_scanning)
 
-        editTextBarcode.isFocusableInTouchMode = true
-        editTextBarcode.isFocusable = true
+//        editTextBarcode.isFocusableInTouchMode = true
+//        editTextBarcode.isFocusable = true
         editTextBarcode.requestFocus()
-        editTextBarcode.inputType = InputType.TYPE_NULL
+//        editTextBarcode.inputType = InputType.TYPE_NULL
+
+        val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.showSoftInput(editTextBarcode, InputMethodManager.SHOW_IMPLICIT)
 
         buttonBarcodeEnter.setOnClickListener {
-            val productBarcode = editTextBarcode.text.toString()
-            doneWith(productBarcode)
+            val barcode = editTextBarcode.text.toString()
+            doneWith(barcode)
         }
 
-        editTextBarcode.setOnKeyListener(View.OnKeyListener { v, keyCode, event ->
+        editTextBarcode.setOnKeyListener(View.OnKeyListener { _, keyCode, event ->
             if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
-                val productBarcode = editTextBarcode.text.toString().trim()
-                doneWith(productBarcode)
+                val barcode = editTextBarcode.text.toString().trim()
+                doneWith(barcode)
                 return@OnKeyListener true
             }
             false
@@ -46,9 +49,9 @@ class ScanningActivity : AppCompatActivity() {
         mgr.showSoftInput(editTextBarcode, InputMethodManager.SHOW_FORCED)
     }
 
-    private fun doneWith(productBarcode: String) {
+    private fun doneWith(barcode: String) {
         val resultIntent = Intent()
-        resultIntent.putExtra("product_barcode", productBarcode)
+        resultIntent.putExtra("product_barcode", barcode)
         setResult(RESULT_OK, resultIntent)
         finish()
     }

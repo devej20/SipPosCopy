@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
@@ -9,8 +10,7 @@
             type="net.sipconsult.jubensippos.SharedViewModel" />
     </data>
 
-
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <androidx.constraintlayout.widget.ConstraintLayout
 
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -20,13 +20,14 @@
             android:id="@+id/groupLoyaltyScan"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:constraint_referenced_ids="textScanQrCode,buttonScanQrCode" />
+            app:constraint_referenced_ids="textScanQrCode,buttonScanQrCode"
+            tools:visibility="visible" />
 
         <TextView
             android:id="@+id/textScanQrCode"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Please Scan QR Code"
+            android:text="Please Scan Barcode"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
             android:textColor="@color/colorPrimary"
             app:layout_constraintBottom_toTopOf="@+id/buttonScanQrCode"
@@ -78,80 +79,124 @@
             android:id="@+id/groupLoyaltyResult"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:constraint_referenced_ids="textLoyaltyDue,textLoyaltyTender,textLoyaltyValue,textLoyaltyValue,editTextLoyaltyValue,editTextLoyaltyTender,editTextLoyaltyDue"
+            app:constraint_referenced_ids="textLoyaltyDue,textLoyaltyValue,textLoyaltyValue,editTextLoyaltyValue,editTextLoyaltyDue,textLoyaltyChange,editTextLoyaltyChange"
             tools:visibility="gone" />
 
         <TextView
             android:id="@+id/textLoyaltyDue"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="36dp"
+            android:layout_marginTop="12dp"
             android:text="Due"
-            android:textAppearance="@style/TextAppearance.AppCompat.Large"
-            app:layout_constraintEnd_toStartOf="@+id/textLoyaltyTender"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/textLoyaltyTender"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="Avail Value"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
             app:layout_constraintEnd_toStartOf="@+id/textLoyaltyValue"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/textLoyaltyDue"
-            app:layout_constraintTop_toTopOf="@+id/textLoyaltyDue" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView10" />
 
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editTextLoyaltyDue"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:enabled="true"
+            android:hint="Due"
+            android:inputType="number"
+            android:text="@{viewModel.totalPrice.toString()}"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@+id/editTextLoyaltyValue"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textLoyaltyDue" />
+        <!--
+
+                <TextView
+                    android:id="@+id/textLoyaltyTender"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="Avail Value"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                    app:layout_constraintEnd_toStartOf="@+id/textLoyaltyValue"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toEndOf="@+id/textLoyaltyDue"
+                    app:layout_constraintTop_toTopOf="@+id/textLoyaltyDue" />
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editTextLoyaltyTender"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:hint="Avail Value"
+                    android:inputType="numberDecimal"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toStartOf="@+id/editTextLoyaltyValue"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toEndOf="@+id/editTextLoyaltyDue"
+                    app:layout_constraintTop_toBottomOf="@+id/textLoyaltyTender" />
+
+        -->
         <TextView
             android:id="@+id/textLoyaltyValue"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="Value"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/textLoyaltyChange"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/textLoyaltyTender"
-            app:layout_constraintTop_toTopOf="@+id/textLoyaltyTender" />
+            app:layout_constraintStart_toEndOf="@+id/textLoyaltyDue"
+            app:layout_constraintTop_toTopOf="@+id/textLoyaltyDue" />
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/editTextLoyaltyValue"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:enabled="false"
+            android:enabled="true"
             android:hint="Value"
             android:inputType="number"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/editTextLoyaltyTender"
-            app:layout_constraintTop_toBottomOf="@+id/textLoyaltyValue" />
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/editTextLoyaltyTender"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:hint="Avail Value"
-            android:inputType="numberDecimal"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            app:layout_constraintEnd_toStartOf="@+id/editTextLoyaltyValue"
+            android:text="@={viewModel.editTextLoyaltyAmount}"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@+id/editTextLoyaltyChange"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/editTextLoyaltyDue"
-            app:layout_constraintTop_toBottomOf="@+id/textLoyaltyTender" />
+            app:layout_constraintTop_toBottomOf="@+id/textLoyaltyValue" />
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/editTextLoyaltyDue"
+        <TextView
+            android:id="@+id/textLoyaltyChange"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:enabled="false"
-            android:hint="Due"
-            android:inputType="number"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-            app:layout_constraintEnd_toStartOf="@+id/editTextLoyaltyTender"
+            android:layout_marginEnd="8dp"
+            android:text="Change"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/textLoyaltyValue"
+            app:layout_constraintTop_toTopOf="@+id/textLoyaltyValue" />
+
+        <EditText
+            android:id="@+id/editTextLoyaltyChange"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:ems="10"
+            android:inputType="number"
+            android:text="@{viewModel.change}"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/editTextLoyaltyValue"
+            app:layout_constraintTop_toBottomOf="@+id/textLoyaltyChange" />
+
+        <TextView
+            android:id="@+id/textView10"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="GIFT VOUCHER"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textLoyaltyDue" />
+            app:layout_constraintTop_toTopOf="parent" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

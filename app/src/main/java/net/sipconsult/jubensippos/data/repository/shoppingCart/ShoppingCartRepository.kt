@@ -11,35 +11,78 @@ import java.text.DecimalFormat
 object ShoppingCartRepository {
 
     private const val CART: String = "cart"
+    private const val REFUND_CART: String = "refund_cart"
 
     val decimalFormater = DecimalFormat("0.00")
 
-    private val _cartItems = MutableLiveData<MutableList<CartItem>>()
 
+    private val _emptyCartItems = MutableLiveData<MutableList<CartItem>>()
+    val emptyCartItems: LiveData<MutableList<CartItem>>
+        get() = _emptyCartItems
+
+    private val _cartItems = MutableLiveData<MutableList<CartItem>>()
     val cartItems: LiveData<MutableList<CartItem>>
         get() = _cartItems
 
-    private val _totalPrice = MutableLiveData<Double>()
+    private val _refundCartItems = MutableLiveData<MutableList<CartItem>>()
+    val refundCartItems: LiveData<MutableList<CartItem>>
+        get() = _refundCartItems
 
+    private val _totalPrice = MutableLiveData<Double>()
     val totalPrice: LiveData<Double>
         get() = _totalPrice
 
+    private val _refundTotalPrice = MutableLiveData<Double>()
+    val refundTotalPrice: LiveData<Double>
+        get() = _refundTotalPrice
+
     val totalCartPrice: Double
         get() = getCartPrice()
+
+    val refundTotalCartPrice: Double
+        get() = getRefundCartPrice()
 
     private val _totalQuantity = MutableLiveData<Int>()
 
     val totalQuantity: LiveData<Int>
         get() = _totalQuantity
 
-
     init {
-        _cartItems.value =
-            getCart()
-        _totalPrice.value =
-            getCartPrice()
-        _totalQuantity.value =
-            getCartQuantity()
+        setCartItems()
+        setRefundCartItems()
+
+        setTotalPrice()
+        setRefundTotalPrice()
+
+        _totalQuantity.postValue(getCartQuantity())
+    }
+
+
+    private fun setCartItems() {
+        _cartItems.value = getCart()
+    }
+
+    fun postCartItems() {
+        _cartItems.postValue(getCart())
+    }
+
+    private fun setRefundCartItems() {
+//        _cartItems.postValue(getCart())
+        _refundCartItems.value = getRefundCart()
+    }
+
+    private fun setTotalPrice() {
+//        _totalPrice.postValue(getCartPrice())
+        _totalPrice.value = getCartPrice()
+    }
+
+    fun postTotalPrice() {
+        _totalPrice.postValue(getCartPrice())
+    }
+
+    private fun setRefundTotalPrice() {
+//        _totalPrice.postValue(getCartPrice())
+        _refundTotalPrice.value = getRefundCartPrice()
     }
 
     fun addCartItem(cartItem: CartItem) {
@@ -56,10 +99,29 @@ object ShoppingCartRepository {
         saveCart(
             cart
         )
-        _cartItems.value =
-            getCart()
-        _totalPrice.value =
-            getCartPrice()
+        setCartItems()
+        setTotalPrice()
+//        AddCartItemAsyncTask().execute(cartItem)
+    }
+
+    fun addRefundCartItem(cartItem: CartItem, originalQuantity: Int) {
+        val cart =
+            getRefundCart()
+
+        val targetItem = cart.singleOrNull { it.product.code == cartItem.product.code }
+        if (targetItem == null) {
+            cart.add(cartItem)
+        } else {
+            if (targetItem.quantity < originalQuantity)
+                targetItem.quantity++
+        }
+
+        saveRefundCart(
+            cart
+        )
+
+        setRefundCartItems()
+        setRefundTotalPrice()
 //        AddCartItemAsyncTask().execute(cartItem)
     }
 
@@ -75,10 +137,25 @@ object ShoppingCartRepository {
             cart
         )
 
-        _cartItems.value =
-            getCart()
-        _totalPrice.value =
-            getCartPrice()
+        setCartItems()
+        setTotalPrice()
+//        RemoveCartItemAsyncTask().execute(item)
+    }
+
+    fun removeRefundCartItem(cartItem: CartItem) {
+        val cart =
+            getRefundCart()
+        val targetItem = cart.singleOrNull { it.product.code == cartItem.product.code }
+//        val cartItem = cart[cartItem]
+
+        cart.remove(targetItem)
+
+        saveRefundCart(
+            cart
+        )
+
+        setRefundCartItems()
+        setRefundTotalPrice()
 //        RemoveCartItemAsyncTask().execute(item)
     }
 
@@ -95,10 +172,27 @@ object ShoppingCartRepository {
             cart
         )
 
-        _cartItems.value =
-            getCart()
-        _totalPrice.value =
-            getCartPrice()
+        setCartItems()
+        setTotalPrice()
+
+//        IncreaseCartItemQuantityAsyncTask().execute(item)
+    }
+
+    fun increaseRefundCartItemQuantity(cartItem: CartItem) {
+        val cart =
+            getRefundCart()
+
+        val targetItem = cart.singleOrNull { it.product.code == cartItem.product.code }
+        if (targetItem != null) {
+            targetItem.quantity++
+        }
+
+        saveRefundCart(
+            cart
+        )
+
+        setRefundCartItems()
+        setRefundTotalPrice()
 
 //        IncreaseCartItemQuantityAsyncTask().execute(item)
     }
@@ -117,31 +211,63 @@ object ShoppingCartRepository {
             cart
         )
 
-        _cartItems.value =
-            getCart()
-        _totalPrice.value =
-            getCartPrice()
+        setCartItems()
+        setTotalPrice()
+
+//        DecreaseCartItemQuantityAsyncTask().execute(item)
+    }
+
+    fun decreaseRefundCartItemQuantity(cartItem: CartItem) {
+        val cart =
+            getRefundCart()
+        val targetItem = cart.singleOrNull { it.product.code == cartItem.product.code }
+        if (targetItem != null) {
+            if (targetItem.quantity > 1) {
+                targetItem.quantity--
+            }
+        }
+
+        saveRefundCart(
+            cart
+        )
+
+        setRefundCartItems()
+        setRefundTotalPrice()
 
 //        DecreaseCartItemQuantityAsyncTask().execute(item)
     }
 
     fun removeALLCartItem() {
         deleteCart()
-        _cartItems.value =
-            getCart()
-        _totalPrice.value =
-            getCartPrice()
+        setCartItems()
+        setTotalPrice()
+    }
+
+    fun removeALLRefundCartItem() {
+        deleteRefundCart()
+        setRefundCartItems()
+        setRefundTotalPrice()
     }
 
     private fun saveCart(cart: MutableList<CartItem>) {
         Paper.book().write(CART, cart)
     }
 
+    private fun saveRefundCart(cart: MutableList<CartItem>) {
+        Paper.book().write(REFUND_CART, cart)
+    }
+
     fun getCart(): MutableList<CartItem> {
         return Paper.book().read(CART, mutableListOf())
     }
 
+    private fun getRefundCart(): MutableList<CartItem> {
+        return Paper.book().read(REFUND_CART, mutableListOf())
+    }
+
     fun deleteCart() = Paper.book().delete(CART)
+
+    fun deleteRefundCart() = Paper.book().delete(REFUND_CART)
 
     fun getShoppingCartSize(): Int {
         var cartSize = 0
@@ -156,6 +282,14 @@ object ShoppingCartRepository {
     private fun getCartPrice(): Double {
         var price = 0.0
         _cartItems.value?.forEach {
+            price += (it.product.price.salePrice * it.quantity)
+        }
+        return price
+    }
+
+    private fun getRefundCartPrice(): Double {
+        var price = 0.0
+        _refundCartItems.value?.forEach {
             price += (it.product.price.salePrice * it.quantity)
         }
         return price

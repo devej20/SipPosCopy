@@ -2,12 +2,12 @@ package net.sipconsult.jubensippos.ui.transactions
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import net.sipconsult.jubensippos.data.provider.LocationProvider
 import net.sipconsult.jubensippos.data.repository.transaction.TransactionRepository
-import net.sipconsult.jubensippos.data.repository.user.UserRepository
 
 class SalesTransactionViewModelFactory(
     private val transactionRepository: TransactionRepository,
-    private val userRepository: UserRepository
+    private val locationProvider: LocationProvider
 ) :
     ViewModelProvider.NewInstanceFactory() {
 
@@ -15,7 +15,7 @@ class SalesTransactionViewModelFactory(
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         return SalesTransactionViewModel(
             transactionRepository,
-            userRepository
+            locationProvider
         ) as T
     }
 }

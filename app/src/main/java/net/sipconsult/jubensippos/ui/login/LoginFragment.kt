@@ -158,9 +158,7 @@ class LoginFragment : Fragment(), KodeinAware {
         result.observe(viewLifecycleOwner, Observer {
             it ?: return@Observer
             it.let {
-
                 viewModel.updateLoginResult(it)
-
             }
         })
     }

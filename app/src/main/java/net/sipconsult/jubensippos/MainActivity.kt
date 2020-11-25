@@ -160,7 +160,9 @@ class MainActivity : AppCompatActivity(), KodeinAware, LogOutTimerUtil.LogOutLis
 
     override fun doLogout() {
         viewModel.logout()
-        ShoppingCartRepository.removeALLCartItem()
+        ShoppingCartRepository.deleteCart()
+        ShoppingCartRepository.postCartItems()
+        ShoppingCartRepository.postTotalPrice()
         finish()
 //        val intent = Intent(this, MainActivity::class.java)
 //        startActivity(intent)

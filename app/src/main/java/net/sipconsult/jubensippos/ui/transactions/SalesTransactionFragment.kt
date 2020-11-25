@@ -1,11 +1,18 @@
 package net.sipconsult.jubensippos.ui.transactions
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
+import android.widget.SearchView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.DividerItemDecoration
 import kotlinx.android.synthetic.main.sales_transaction_fragment.*
 import kotlinx.coroutines.launch
 import net.sipconsult.jubensippos.R
@@ -42,39 +49,73 @@ class SalesTransactionFragment : ScopedFragment(), KodeinAware {
     }
 
     private fun bindUI() = launch {
-        viewModel.user.observe(viewLifecycleOwner, Observer {
-            if (it != null) {
-                ldIn()
-            }
-        })
 
+        ldIn()
+        if (view != null) {
+            viewModel.transactionsResult.observe(
+                viewLifecycleOwner,
+                Observer { result ->
+                    result ?: return@Observer
+                    groupSaleTransactionLoading.visibility = View.GONE
 
-
-        viewModel.transactionResult.observe(
-            viewLifecycleOwner,
-            Observer { result ->
-                result ?: return@Observer
-                groupSaleTransactionLoading.visibility = View.GONE
-
-                result.error?.let {
+                    result.error?.let {
 //                    showVoucherFailed(it)
-                }
-                result.success?.let {
-                    setupRecyclerView(it)
-                }
-            })
-
+                    }
+                    result.success?.let {
+                        setupTransactionRecyclerView(it)
+                    }
+                })
+        }
 
     }
 
-    private fun setupRecyclerView(transactions: ArrayList<SalesTransactionsItem>) {
+    private fun Context.hideKeyboard(view: View) {
+        val inputMethodManager =
+            getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
+    }
+
+    fun Fragment.hideKeyboard() {
+        view?.let {
+            activity?.hideKeyboard(it)
+        }
+    }
+
+    private fun setupSearchView(salesTransactionListAdapter: SalesTransactionListAdapter) {
+        searchSalesTransaction.setOnQueryTextListener(object : SearchView.OnQueryTextListener,
+            androidx.appcompat.widget.SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                hideKeyboard()
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                salesTransactionListAdapter.filter.filter(newText)
+                return false
+            }
+
+        })
+    }
+
+
+    private fun setupTransactionRecyclerView(transactions: ArrayList<SalesTransactionsItem>) {
         val salesTransactionListAdapter =
             SalesTransactionListAdapter(::onTransactionClick)
         listSaleTransaction.adapter = salesTransactionListAdapter
+        listSaleTransaction.addItemDecoration(
+            DividerItemDecoration(
+                listSaleTransaction.context,
+                DividerItemDecoration.VERTICAL
+            )
+        )
         salesTransactionListAdapter.setSalesTransaction(transactions)
+        setupSearchView(salesTransactionListAdapter)
     }
 
-    private fun onTransactionClick(pos: Int) {
+    private fun onTransactionClick(item: SalesTransactionsItem) {
+        val action =
+            SalesTransactionFragmentDirections.actionNavSalesTransactionToRefundFragment(item.id)
+        this.findNavController().navigate(action)
     }
 
 }

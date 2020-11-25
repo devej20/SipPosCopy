@@ -147,8 +147,10 @@ class HomeFragment : ScopedFragment(), KodeinAware {
         buttonPayment.setOnClickListener {
             textProductFoundNotFound.text = ""
             if (sharedViewModel.salesAgent.value != null) {
+                sharedViewModel.transactionType = 1
                 sharedViewModel.setTotalPrice()
-                val action = HomeFragmentDirections.actionNavHomeToPaymentFragment()
+                val action =
+                    HomeFragmentDirections.actionNavHomeToPaymentFragment(transactionType = 1)
                 this.findNavController().navigate(action)
             } else {
                 Toast.makeText(context, "Please Select Sales Agent", Toast.LENGTH_SHORT).show()
@@ -160,14 +162,17 @@ class HomeFragment : ScopedFragment(), KodeinAware {
 
     private fun bindUI() = launch {
         val salesAgents = viewModel.salesAgents.await()
-        salesAgents.observe(viewLifecycleOwner, Observer { salesAgents ->
-            if (salesAgents == null) return@Observer
-            groupSalesAgentLoading.visibility = View.GONE
-            setupRecyclerView(salesAgents as ArrayList<SalesAgentsItem>)
-        })
+        if (view != null) {
+            salesAgents.observe(viewLifecycleOwner, Observer { salesAgents ->
+                if (salesAgents == null) return@Observer
+                groupSalesAgentLoading.visibility = View.GONE
+                setupSalesAgentRecyclerView(salesAgents as ArrayList<SalesAgentsItem>)
+            })
+        }
+
     }
 
-    private fun setupRecyclerView(products: ArrayList<SalesAgentsItem>) {
+    private fun setupSalesAgentRecyclerView(products: ArrayList<SalesAgentsItem>) {
         val salesAgentListAdapter =
             SalesAgentListAdapter(::onSalesAgentClick)
         listSalesAgent.adapter = salesAgentListAdapter

@@ -10,12 +10,14 @@ data class SalesTransactionsItem(
     val description: String?,
     @SerializedName("discountType")
     val discountType: DiscountTypesItem?,
+    @SerializedName("locationCodeNavigation")
+    val location: LocationsItem?,
     @SerializedName("id")
     val id: Int,
+    @SerializedName("totalSales")
+    val totalSales: Double,
     @SerializedName("operator")
     val operator: Operator,
-    @SerializedName("operatorId")
-    val operatorId: String,
     @SerializedName("receiptNumber")
     val receiptNumber: String,
     @SerializedName("salesAgent")
@@ -25,21 +27,9 @@ data class SalesTransactionsItem(
     @SerializedName("salesTransactionProduct")
     val salesTransactionProduct: List<SalesTransactionProduct>
 ) {
-    val totalSales: Double
+    val totalSalesStr: String
         get() {
-            var productTotalSales: Double = 0.0
-            for (p in salesTransactionProduct) {
-                productTotalSales += (p.product.price.salePrice * p.quantity)
-            }
 
-            if (discountType != null) {
-                val salePriceDiscount = discountType.percentage.toDouble() / 100
-                val discountPrice: Double = salePriceDiscount * productTotalSales
-                val newSalesPrice: Double = productTotalSales - discountPrice
-
-                productTotalSales = newSalesPrice
-            }
-
-            return productTotalSales
+            return totalSales.toString()
         }
 }

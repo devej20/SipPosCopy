@@ -58,7 +58,6 @@ class CardFragment : ScopedFragment() {
                 sharedViewModel.cardAmount = 0.0
                 sharedViewModel.deduct()
             }
-
         })
 
         return binding.root
@@ -84,10 +83,10 @@ class CardFragment : ScopedFragment() {
                         2 -> {
                             findNavController().navigate(R.id.mobileMoneyFragment)
                         }
-                        4 -> {
+                        5 -> {
                             findNavController().navigate(R.id.loyaltyFragment)
                         }
-                        6 -> {
+                        4 -> {
                             findNavController().navigate(R.id.chequeFragment)
                         }
                     }
@@ -98,8 +97,8 @@ class CardFragment : ScopedFragment() {
 //        editTextVisaCardNumber.visibility = View.GONE
 //        textVisa.visibility = View.GONE
 
-        disableEditText(editTextVisaDue)
-        disableEditText(editTextVisaChange)
+        disableEditText(editTextCardDue)
+        disableEditText(editTextCardChange)
     }
 
     private fun disableEditText(editText: EditText) {

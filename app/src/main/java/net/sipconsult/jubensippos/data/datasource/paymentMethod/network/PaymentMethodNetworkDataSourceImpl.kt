@@ -30,7 +30,6 @@ class PaymentMethodNetworkDataSourceImpl(private val sipShopApiService: SipShopA
 
     override suspend fun getVoucher(code: String): Result<Voucher> {
         try {
-
             val call = sipShopApiService.getVoucherAsync(code)
 
             return if (call.successful) {

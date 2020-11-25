@@ -83,10 +83,10 @@ class MobileMoneyFragment : ScopedFragment() {
                         1 -> {
                             findNavController().navigate(R.id.cashFragment)
                         }
-                        6 -> {
+                        4 -> {
                             findNavController().navigate(R.id.chequeFragment)
                         }
-                        4 -> {
+                        5 -> {
                             findNavController().navigate(R.id.loyaltyFragment)
                         }
                         3 -> {

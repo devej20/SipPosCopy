@@ -40,6 +40,7 @@ class ProductsFragment : ScopedFragment(), KodeinAware {
 
     private lateinit var viewModel: ProductsViewModel
 
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -57,26 +58,30 @@ class ProductsFragment : ScopedFragment(), KodeinAware {
 
     private fun bindUI() = launch {
         val locations = viewModel.locations.await()
-
-        locations.observe(viewLifecycleOwner, Observer { lcs ->
-            if (lcs == null) return@Observer
-            val size = lcs.size
+        if (view != null) {
+            locations.observe(viewLifecycleOwner, Observer { lcs ->
+                if (lcs == null) return@Observer
+                val size = lcs.size
 //            Toast.makeText(context, "Locations size $size",Toast.LENGTH_SHORT).show()
 
-        })
+            })
+        }
         val products = viewModel.products.await()
-        products.observe(viewLifecycleOwner, Observer { pdts ->
-            if (pdts == null) return@Observer
-            groupLoadingProducts.visibility = View.GONE
-            setupRecyclerView(pdts as ArrayList<ProductItem>)
-            viewModel.productItems = pdts
-        })
+        if (view != null) {
+            products.observe(viewLifecycleOwner, Observer { pdts ->
+                if (pdts == null) return@Observer
+                groupLoadingProducts.visibility = View.GONE
+                setupProductRecyclerView(pdts as ArrayList<ProductItem>)
+                viewModel.productItems = pdts
+            })
 
-        buttonScanBarcode.setOnClickListener {
+            buttonScanBarcode.setOnClickListener {
 //            Toast.makeText(activity, "Scan", Toast.LENGTH_LONG).show()
 //            startInternalScanSunmi()
-            startExternalScanSunmi()
+                startExternalScanSunmi()
+            }
         }
+
 
     }
 
@@ -108,7 +113,7 @@ class ProductsFragment : ScopedFragment(), KodeinAware {
         })
     }
 
-    private fun setupRecyclerView(products: ArrayList<ProductItem>) {
+    private fun setupProductRecyclerView(products: ArrayList<ProductItem>) {
         val productRecyclerAdapter =
             ProductListAdapter(::onProductClick)
         listProducts.adapter = productRecyclerAdapter
