@@ -89,6 +89,9 @@ class CardFragment : ScopedFragment() {
                         4 -> {
                             findNavController().navigate(R.id.chequeFragment)
                         }
+                        6 -> {
+                            findNavController().navigate(R.id.complimentaryFragment)
+                        }
                     }
                 }
             })

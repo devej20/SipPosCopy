@@ -1,4 +1,4 @@
-package net.sipconsult.jubensippos.ui.payment.paymentmethod.cash
+package net.sipconsult.jubensippos.ui.payment.paymentmethod.complimentary
 
 import android.content.Context
 import android.os.Bundle
@@ -12,22 +12,21 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import kotlinx.android.synthetic.main.cash_fragment.*
+import kotlinx.android.synthetic.main.complimentry_fragment.*
 import net.sipconsult.jubensippos.R
 import net.sipconsult.jubensippos.SharedViewModel
-import net.sipconsult.jubensippos.databinding.CashFragmentBinding
+import net.sipconsult.jubensippos.databinding.ComplimentryFragmentBinding
 import net.sipconsult.jubensippos.ui.base.ScopedFragment
 
+class ComplimentaryFragment : ScopedFragment() {
 
-class CashFragment : ScopedFragment() {
+    private var _binding: ComplimentryFragmentBinding? = null
 
-    private var _binding: CashFragmentBinding? = null
-
-    // This property is only valid between onCreateView and
-    // onDestroyView.
     private val binding get() = _binding!!
 
     private lateinit var sharedViewModel: SharedViewModel
+
+    private lateinit var viewModel: ComplimentaryViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,32 +36,58 @@ class CashFragment : ScopedFragment() {
             ViewModelProvider(this)[SharedViewModel::class.java]
         } ?: throw Exception("Invalid Activity")
 
-        _binding = CashFragmentBinding.inflate(inflater, container, false)
+        _binding = ComplimentryFragmentBinding.inflate(inflater, container, false)
         binding.viewModel = sharedViewModel
         binding.lifecycleOwner = viewLifecycleOwner
-        val view = binding.root
 
-        sharedViewModel.editTextTender.observe(viewLifecycleOwner, Observer {
-            if (!it.isNullOrEmpty()) {
-                sharedViewModel.cashAmount = it.trim().toDouble()
+        sharedViewModel.editTextComplimentaryNumber.observe(
+            viewLifecycleOwner,
+            Observer { phoneNumber ->
+
+                if (!phoneNumber.isNullOrEmpty()) {
+                    sharedViewModel.mobileMoneyPhoneNumber = phoneNumber.trim()
+                } else {
+                    sharedViewModel.mobileMoneyPhoneNumber = ""
+                }
+
+            })
+
+        sharedViewModel.editTextComplimentaryAmount.observe(viewLifecycleOwner, Observer { amount ->
+            if (!amount.isNullOrEmpty()) {
+                sharedViewModel.mobileMoneyAmount = amount.trim().toDouble()
                 sharedViewModel.deduct()
             } else {
-                sharedViewModel.cashAmount = 0.0
+                sharedViewModel.mobileMoneyAmount = 0.0
                 sharedViewModel.deduct()
             }
+
         })
 
+        return binding.root
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+
+
+        buildUI()
+    }
+
+    private fun buildUI() {
         sharedViewModel.selectedPaymentMethod.observe(
             viewLifecycleOwner,
             Observer { paymentMethod ->
                 if (paymentMethod != null) {
 
                     when (paymentMethod.id) {
-                        4 -> {
-                            findNavController().navigate(R.id.chequeFragment)
+                        1 -> {
+                            findNavController().navigate(R.id.cashFragment)
                         }
                         2 -> {
                             findNavController().navigate(R.id.mobileMoneyFragment)
+                        }
+                        4 -> {
+                            findNavController().navigate(R.id.chequeFragment)
                         }
                         5 -> {
                             findNavController().navigate(R.id.loyaltyFragment)
@@ -70,37 +95,16 @@ class CashFragment : ScopedFragment() {
                         3 -> {
                             findNavController().navigate(R.id.cardFragment)
                         }
-                        6 -> {
-                            findNavController().navigate(R.id.complimentaryFragment)
-                        }
                     }
                 }
-
             })
 
-        return view
-    }
+//        textComplimentary.visibility = View.GONE
+//        editTextComplimentaryPhoneNumber.visibility = View.GONE
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+        disableEditText(editTextComplimentaryDue)
+        disableEditText(editTextComplimentaryChange)
 
-        buildUI()
-    }
-
-    private fun buildUI() {
-
-        keyboardPayment.visibility = View.GONE
-
-//        editTextCashTender.setRawInputType(InputType.TYPE_CLASS_TEXT)
-//        editTextCashTender.setTextIsSelectable(true)
-//        editTextCashTender.setOnClickListener { hideKeyboard() }
-////        editTextCashTender.keyListener = null
-//
-//        val ic: InputConnection = editTextCashTender.onCreateInputConnection(EditorInfo())!!
-//        keyboardPayment.setInputConnection(ic)
-
-        disableEditText(editTextCashDue)
-        disableEditText(editTextCashChange)
     }
 
     private fun disableEditText(editText: EditText) {

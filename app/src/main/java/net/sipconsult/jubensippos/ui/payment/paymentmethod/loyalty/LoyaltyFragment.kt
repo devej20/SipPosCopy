@@ -129,6 +129,9 @@ class LoyaltyFragment : ScopedFragment(), KodeinAware {
                     3 -> {
                         findNavController().navigate(R.id.cardFragment)
                     }
+                    6 -> {
+                        findNavController().navigate(R.id.complimentaryFragment)
+                    }
                 }
             }
         })
@@ -145,9 +148,11 @@ class LoyaltyFragment : ScopedFragment(), KodeinAware {
         val price = sharedViewModel.totalPrice.value
 //        editTextLoyaltyDue.setText(price)
         editTextLoyaltyValue.setText(voucher.value.toString())
+        disableEditText(editTextLoyaltyValue)
         sharedViewModel.voucherId = voucher.id
         sharedViewModel.loyaltyAmount = voucher.value
         sharedViewModel.deduct()
+
     }
 
     private fun showVoucherFailed(@StringRes errorString: Int) {

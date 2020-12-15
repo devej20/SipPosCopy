@@ -28,4 +28,8 @@
         android:name="net.sipconsult.jubensippos.ui.payment.paymentmethod.cheque.ChequeFragment"
         android:label="cheque_fragment"
         tools:layout="@layout/cheque_fragment" />
+    <fragment
+        android:id="@+id/complimentaryFragment"
+        android:name="net.sipconsult.jubensippos.ui.payment.paymentmethod.complimentary.ComplimentaryFragment"
+        android:label="ComplimentaryFragment" />
 </navigation>

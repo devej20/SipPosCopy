@@ -31,17 +31,20 @@
     <string name="menu_settings">Settings</string>
     <!-- Preference Titles -->
     <string name="location">Location</string>
+    <string name="pos">POS</string>
 
     <!-- Messages Preferences -->
 
     <!-- Sync Preferences -->
     <string name="location_title">Shop locations</string>
+    <string name="pos_title">POS Number</string>
     <string name="text_scan">Scan</string>
     <string name="hint_username">Username</string>
     <string name="hint_password">Password</string>
     <string name="text_amount">Amount Paid</string>
     <string name="text_change">Change</string>
     <string name="text_mobile_number">Mobile Number</string>
+    <string name="text_complimentary_number">Number</string>
     <string name="hint_change">Change</string>
     <string name="hint_due">Due</string>
     <string name="text_due">Due</string>

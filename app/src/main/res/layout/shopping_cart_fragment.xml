@@ -30,7 +30,6 @@
             android:id="@+id/imageCart"
             android:layout_width="124dp"
             android:layout_height="124dp"
-            android:tint="@color/material_on_primary_disabled"
             app:layout_constraintBottom_toTopOf="@+id/textCart"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"

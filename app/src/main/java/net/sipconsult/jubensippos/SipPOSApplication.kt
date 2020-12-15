@@ -35,6 +35,8 @@ import net.sipconsult.jubensippos.data.network.ConnectivityInterceptorImpl
 import net.sipconsult.jubensippos.data.network.SipShopApiService
 import net.sipconsult.jubensippos.data.provider.LocationProvider
 import net.sipconsult.jubensippos.data.provider.LocationProviderImpl
+import net.sipconsult.jubensippos.data.provider.PosNumberProvider
+import net.sipconsult.jubensippos.data.provider.PosNumberProviderImpl
 import net.sipconsult.jubensippos.data.repository.discountType.DiscountTypeRepository
 import net.sipconsult.jubensippos.data.repository.discountType.DiscountTypeRepositoryImpl
 import net.sipconsult.jubensippos.data.repository.location.LocationRepository
@@ -211,6 +213,9 @@ class SipPOSApplication : Application(), KodeinAware {
         bind<LocationProvider>() with singleton {
             LocationProviderImpl(this@SipPOSApplication)
         }
+        bind<PosNumberProvider>() with singleton {
+            PosNumberProviderImpl(this@SipPOSApplication)
+        }
 
         bind() from provider { HomeViewModelFactory(instance()) }
         bind() from provider { CategoryViewModelFactory(instance()) }
@@ -219,6 +224,7 @@ class SipPOSApplication : Application(), KodeinAware {
 
         bind() from provider {
             SharedViewModelFactory(
+                instance(),
                 instance(),
                 instance(),
                 instance(),

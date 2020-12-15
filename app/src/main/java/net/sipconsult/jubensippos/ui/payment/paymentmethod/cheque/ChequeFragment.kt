@@ -89,6 +89,9 @@ class ChequeFragment : Fragment() {
                         3 -> {
                             findNavController().navigate(R.id.cardFragment)
                         }
+                        6 -> {
+                            findNavController().navigate(R.id.complimentaryFragment)
+                        }
                     }
                 }
             })

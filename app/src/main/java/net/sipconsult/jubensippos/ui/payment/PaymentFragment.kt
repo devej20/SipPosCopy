@@ -363,8 +363,23 @@ class PaymentFragment : ScopedFragment(), KodeinAware {
                         }
 
                     }
+                    for (p in paymentMethods) {
+                        if (p.id == 6) {
+                            if (sharedViewModel.complimentaryAmount < 0) {
+                                Toast.makeText(
+                                    context,
+                                    "Please Enter Payment Complimentary Amount",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+
+                                return@Observer
+                            }
+                        }
+
+                    }
+
                     val totalAmount =
-                        sharedViewModel.cashAmount + sharedViewModel.mobileMoneyAmount + sharedViewModel.cardAmount + sharedViewModel.chequeAmount
+                        sharedViewModel.cashAmount + sharedViewModel.mobileMoneyAmount + sharedViewModel.cardAmount + sharedViewModel.chequeAmount + sharedViewModel.loyaltyAmount + sharedViewModel.complimentaryAmount
 
                     if (totalAmount < totalPrice) {
                         Toast.makeText(context, "Invalid Total Amount", Toast.LENGTH_SHORT)
@@ -372,14 +387,46 @@ class PaymentFragment : ScopedFragment(), KodeinAware {
                         return@Observer
                     }
 
+                    if (sharedViewModel.cashAmount <= 0 && (totalAmount > totalPrice)) {
+                        Toast.makeText(
+                            context,
+                            "Cannot enter other mode of Payment amount greater than Due Amount",
+                            Toast.LENGTH_SHORT
+                        )
+                            .show()
+                        return@Observer
+                    }
+
+                    if (sharedViewModel.cashAmount < sharedViewModel.change.value!!.toDouble()) {
+                        Toast.makeText(
+                            context,
+                            "Cash Amount Cannot be less Than Change",
+                            Toast.LENGTH_SHORT
+                        )
+                            .show()
+                        return@Observer
+                    }
+
+//                    if (totalAmount > totalPrice) {
+//                        Toast.makeText(
+//                            context,
+//                            "Please Enter Exact Due Amount",
+//                            Toast.LENGTH_SHORT
+//                        )
+//                            .show()
+//                        return@Observer
+//                    }
+
                     groupPaymentMethodTransaction.visibility = View.VISIBLE
                     sharedViewModel.generateReceiptNumber()
-                    navigateToReceipt()
-//                    if (sharedViewModel.transactionType == 1) {
-//                        postSalesTrans()
-//                    } else if (sharedViewModel.transactionType == 2) {
-//                        postRefundTrans()
-//                    }
+
+//                    navigateToReceipt()
+
+                    if (sharedViewModel.transactionType == 1) {
+                        postSalesTrans()
+                    } else if (sharedViewModel.transactionType == 2) {
+                        postRefundTrans()
+                    }
 
                 }
 
@@ -498,6 +545,13 @@ class PaymentFragment : ScopedFragment(), KodeinAware {
             sharedViewModel.deduct()
         } else {
             sharedViewModel.setPaymentMethod(paymentMethodItemLoyalty)
+        }
+        val paymentMethodItemComplimentary = paymentMethods.find { p -> p.id == 6 }
+        if (paymentMethodItemComplimentary == null) {
+            sharedViewModel.complimentaryAmount = 0.0
+            sharedViewModel.deduct()
+        } else {
+            sharedViewModel.setPaymentMethod(paymentMethodItemComplimentary)
         }
     }
 

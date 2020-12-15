@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import net.sipconsult.jubensippos.data.models.*
 import net.sipconsult.jubensippos.data.network.response.TransactionResponse
 import net.sipconsult.jubensippos.data.provider.LocationProvider
+import net.sipconsult.jubensippos.data.provider.PosNumberProvider
 import net.sipconsult.jubensippos.data.repository.discountType.DiscountTypeRepository
 import net.sipconsult.jubensippos.data.repository.location.LocationRepository
 import net.sipconsult.jubensippos.data.repository.paymentMethod.PaymentMethodRepository
@@ -33,6 +34,7 @@ class SharedViewModel(
     private val userRepository: UserRepository,
     private val discountTypeRepository: DiscountTypeRepository,
     private val locationProvider: LocationProvider,
+    private val posNumberProvider: PosNumberProvider,
     private val locationRepository: LocationRepository,
     val context: Context
 ) : ViewModel() {
@@ -119,6 +121,12 @@ class SharedViewModel(
     var chequeAmount: Double = 0.0
     var cheque: Double = 0.0
 
+    val editTextComplimentaryNumber = MutableLiveData<String>()
+    var complimentaryNumber: String = ""
+    val editTextComplimentaryAmount = MutableLiveData<String>()
+    var complimentaryAmount: Double = 0.0
+    var complimentary: Double = 0.0
+
     var scanSuccessful: Boolean = false
     var voucherId: Int? = null
     val editTextLoyaltyAmount = MutableLiveData<String>()
@@ -172,7 +180,8 @@ class SharedViewModel(
 
 
     fun deduct() {
-        val totalAmount = cashAmount + mobileMoneyAmount + cardAmount + chequeAmount + loyaltyAmount
+        val totalAmount =
+            cashAmount + mobileMoneyAmount + cardAmount + chequeAmount + loyaltyAmount + complimentaryAmount
         val change: Double = totalAmount - totalPrice.value!!
         _change.value = decimalFormater.format(change)
     }
@@ -186,7 +195,6 @@ class SharedViewModel(
         val newTotalPrice: Double = totalPrice.value!! - deliveryCost
         _totalPrice.value = (decimalFormater.format(newTotalPrice).toDouble())
     }
-
 
     fun setPaymentMethods(paymentMethods: ArrayList<PaymentMethodItem>) {
         _paymentMethods.value = paymentMethods
@@ -227,6 +235,7 @@ class SharedViewModel(
             val dateNow = Date(System.currentTimeMillis())
 
             val millis = dateNow.time
+            val posNumber = posNumberProvider.getPOSNumber()
 
             val currentDate: Long = sharedPref.getLong(KEY_CURRENT_DATE, 0L)
             var currentIndex: Long = sharedPref.getLong(KEY_CURRENT_INDEX, -1L)
@@ -246,7 +255,8 @@ class SharedViewModel(
                 }
                 currentIndex = sharedPref.getLong(KEY_CURRENT_INDEX, 0L)
 
-                receiptNumber = String.format("%s%s%o", userInitial, dateToStr, currentIndex)
+                receiptNumber =
+                    String.format("%s%s%o%s", userInitial, dateToStr, currentIndex, posNumber)
 
                 val newIndex = currentIndex + 1
                 editor.putLong(KEY_CURRENT_INDEX, newIndex).apply()
@@ -261,7 +271,8 @@ class SharedViewModel(
                 editor.putLong(KEY_CURRENT_INDEX, 1).apply()
                 currentIndex = sharedPref.getLong(KEY_CURRENT_INDEX, 0L)
 
-                receiptNumber = String.format("%s%s%o", userInitial, dateToStr, currentIndex)
+                receiptNumber =
+                    String.format("%s%s%o%s", userInitial, dateToStr, currentIndex, posNumber)
 
                 val newIndex = currentIndex + 1
                 editor.putLong(KEY_CURRENT_INDEX, newIndex).apply()
@@ -360,6 +371,11 @@ class SharedViewModel(
                     pm.displayName = "Gift Voucher Amount Paid"
                     paymentMethodItem = pm
                 }
+                6 -> {
+                    pm.amountPaid = complimentaryAmount
+                    pm.displayName = "Complimentary Amount Paid"
+                    paymentMethodItem = pm
+                }
             }
             paymentMethodItems.add(paymentMethodItem)
         }
@@ -381,7 +397,6 @@ class SharedViewModel(
         val paymentMethodsR = receiptPaymentMethod()
         val paymentMethodsSR = paymentMethodsStr()
         val totalString = decimalFormater.format((total))
-
 
         receipt =
             if (discountType.value != null) {
@@ -410,7 +425,7 @@ class SharedViewModel(
                         "Discount ${discountType.value!!.percentageStr}",
                         "GHC ${totalDiscountPrice.value!!}"
                     )
-                    .menuLine("Delivery Cost", "GHC $deliveryCostR")
+                    .menuLine("Delivery Charge", "GHC $deliveryCostR")
                     .menuLine("Total", "GHC $totalString")
                     .menuPaymentMethod(paymentMethodsR)
                     .menuLine("Change", "GHC ${change.value}")
@@ -440,7 +455,7 @@ class SharedViewModel(
                     .dividerDouble()
                     .menuLine("SubTotal", "GHC $subTotal")
                     .menuLine("3% VAT Rate", "GHC $vat")
-                    .menuLine("Delivery Cost", "GHC $deliveryCostR")
+                    .menuLine("Delivery Charge", "GHC $deliveryCostR")
                     .menuLine("Total", "GHC $totalString")
                     .menuPaymentMethod(paymentMethodsR)
                     .menuLine("Change", "GHC ${change.value}")
@@ -463,6 +478,8 @@ class SharedViewModel(
         val vat = calVAT()
         val paymentMethodsR = receiptPaymentMethod()
         val paymentMethodsSR = paymentMethodsStr()
+
+
 
         receipt = ReceiptBuilder()
             .header("JUBEN HOUSE OF BEAUTY")
@@ -606,6 +623,12 @@ class SharedViewModel(
                     salesTransactionPostPaymentMethod = SalesTransactionPostPaymentMethod(
                         paymentMethodId = paymentMethod.id,
                         amount = loyaltyAmount
+                    )
+                }
+                6 -> {
+                    salesTransactionPostPaymentMethod = SalesTransactionPostPaymentMethod(
+                        paymentMethodId = paymentMethod.id,
+                        amount = complimentaryAmount
                     )
                 }
             }
